@@ -1,0 +1,211 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# web3refi Documentation Workflow
+# Created by S6 Labs LLC
+#
+# Generates and deploys API documentation to GitHub Pages.
+# Triggered on pushes to main and manual dispatch.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'doc/**'
+      - 'README.md'
+      - 'pubspec.yaml'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'doc/**'
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to GitHub Pages'
+        required: false
+        default: 'true'
+        type: boolean
+
+# Sets permissions of the GITHUB_TOKEN for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.16.0'
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # BUILD DOCUMENTATION
+  # ═══════════════════════════════════════════════════════════════════════════
+  build:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper versioning
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify code compiles
+        run: flutter analyze --no-fatal-infos
+
+      - name: Generate API documentation
+        run: |
+          echo "Generating API documentation..."
+          dart doc . --output=doc/api
+          echo "API documentation generated successfully"
+
+      - name: Get package version
+        id: version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | head -1 | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+
+      - name: Create documentation index
+        run: |
+          cat > doc/api/index_header.html << 'EOF'
+          <div class="web3refi-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+            <h1 style="margin: 0;">web3refi</h1>
+            <p style="margin: 5px 0 0 0; opacity: 0.9;">The Modern Web3 SDK for Flutter — v${{ steps.version.outputs.version }}</p>
+            <p style="margin: 10px 0 0 0; font-size: 14px;">
+              <a href="https://github.com/web3refi/web3refi" style="color: white;">GitHub</a> •
+              <a href="https://pub.dev/packages/web3refi" style="color: white;">pub.dev</a> •
+              <a href="https://discord.gg/web3refi" style="color: white;">Discord</a>
+            </p>
+          </div>
+          EOF
+
+      - name: Copy additional documentation
+        run: |
+          # Copy markdown docs to API folder for unified site
+          mkdir -p doc/api/guides
+          cp -r doc/*.md doc/api/guides/ 2>/dev/null || true
+          cp README.md doc/api/guides/
+          cp CHANGELOG.md doc/api/guides/
+          
+          # Create a simple navigation
+          cat > doc/api/guides/index.md << 'EOF'
+          # web3refi Documentation
+          
+          ## Guides
+          - [Getting Started](getting-started.md)
+          - [Wallet Connection](wallet-connection.md)
+          - [Token Operations](token-operations.md)
+          - [Multi-Chain Support](multi-chain.md)
+          - [Error Handling](error-handling.md)
+          - [Migration from web3dart](migration-from-web3dart.md)
+          
+          ## Resources
+          - [API Reference](../index.html)
+          - [Changelog](CHANGELOG.md)
+          - [GitHub Repository](https://github.com/web3refi/web3refi)
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: doc/api
+
+      - name: Upload docs as artifact (for PRs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: doc/api
+          retention-days: 7
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DEPLOY TO GITHUB PAGES
+  # ═══════════════════════════════════════════════════════════════════════════
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+    
+    # Only deploy on push to main or manual trigger with deploy=true
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Output deployment URL
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "Documentation deployed successfully!"
+          echo "URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "═══════════════════════════════════════════════════════════════"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LINK CHECK (Verify documentation links)
+  # ═══════════════════════════════════════════════════════════════════════════
+  link-check:
+    name: Check Documentation Links
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download documentation artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: documentation
+          path: doc/api
+
+      - name: Check for broken links
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: >
+            --verbose
+            --no-progress
+            --accept 200,204,206,301,302,303,307,308
+            --exclude-mail
+            --exclude "^https://discord.gg"
+            --exclude "^https://twitter.com"
+            --exclude "localhost"
+            "doc/api/**/*.html"
+            "doc/**/*.md"
+            "README.md"
+        continue-on-error: true  # Don't fail the build on broken links
+
+      - name: Upload link check report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: link-check-report
+          path: ./lychee/out.md
+          retention-days: 7
