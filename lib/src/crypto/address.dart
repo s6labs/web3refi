@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'keccak.dart';
+import 'rlp.dart';
+import 'secp256k1.dart';
 
 /// Ethereum address utilities.
 ///
@@ -40,10 +42,8 @@ class EthereumAddress {
 
   /// Derive address from private key.
   static String fromPrivateKey(Uint8List privateKey) {
-    // This requires secp256k1, will be implemented after secp256k1.dart
-    throw UnimplementedError(
-      'Address from private key requires secp256k1 implementation'
-    );
+    final publicKey = Secp256k1.getPublicKey(privateKey);
+    return fromPublicKey(publicKey);
   }
 
   /// Apply EIP-55 checksum to address.
@@ -141,19 +141,60 @@ class EthereumAddress {
   ///
   /// Contract address = rightmost 20 bytes of Keccak-256(RLP(sender, nonce))
   static String createContractAddress(String sender, BigInt nonce) {
-    // TODO: Implement contract address creation
-    throw UnimplementedError('Contract address creation pending');
+    // Convert sender address to bytes (remove 0x prefix)
+    final senderClean = sender.replaceFirst('0x', '');
+    final senderBytes = Uint8List(20);
+    for (int i = 0; i < 20; i++) {
+      senderBytes[i] = int.parse(senderClean.substring(i * 2, i * 2 + 2), radix: 16);
+    }
+
+    // RLP encode [sender, nonce]
+    final rlpEncoded = RLP.encode([senderBytes, nonce]);
+
+    // Hash and take last 20 bytes
+    final hash = Keccak.keccak256(rlpEncoded);
+    final addressBytes = hash.sublist(12);
+
+    // Convert to hex and apply checksum
+    final addressHex = bytesToHex(addressBytes);
+    return toChecksumAddress(addressHex);
   }
 
   /// Create CREATE2 contract address.
   ///
-  /// address = rightmost 20 bytes of Keccak-256(0xff ++ sender ++ salt ++ Keccak-256(bytecode))
+  /// address = rightmost 20 bytes of Keccak-256(0xff ++ sender ++ salt ++ bytecodeHash)
   static String create2Address({
     required String sender,
     required Uint8List salt,
     required Uint8List bytecodeHash,
   }) {
-    // TODO: Implement CREATE2 address calculation
-    throw UnimplementedError('CREATE2 address pending');
+    if (salt.length != 32) {
+      throw ArgumentError('Salt must be 32 bytes');
+    }
+    if (bytecodeHash.length != 32) {
+      throw ArgumentError('Bytecode hash must be 32 bytes');
+    }
+
+    // Convert sender address to bytes (remove 0x prefix)
+    final senderClean = sender.replaceFirst('0x', '');
+    final senderBytes = Uint8List(20);
+    for (int i = 0; i < 20; i++) {
+      senderBytes[i] = int.parse(senderClean.substring(i * 2, i * 2 + 2), radix: 16);
+    }
+
+    // Concatenate: 0xff ++ sender ++ salt ++ bytecodeHash
+    final data = Uint8List(1 + 20 + 32 + 32);
+    data[0] = 0xff;
+    data.setAll(1, senderBytes);
+    data.setAll(21, salt);
+    data.setAll(53, bytecodeHash);
+
+    // Hash and take last 20 bytes
+    final hash = Keccak.keccak256(data);
+    final addressBytes = hash.sublist(12);
+
+    // Convert to hex and apply checksum
+    final addressHex = bytesToHex(addressBytes);
+    return toChecksumAddress(addressHex);
   }
 }
