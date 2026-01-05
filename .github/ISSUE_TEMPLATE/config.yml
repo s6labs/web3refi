@@ -1,0 +1,38 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# web3refi Issue Template Configuration
+# Created by S6 Labs LLC
+#
+# Location: .github/ISSUE_TEMPLATE/config.yml
+#
+# This file configures the issue template chooser and adds external links.
+# https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Disable blank issues to ensure users always use a template
+blank_issues_enabled: false
+
+# External links shown in the issue template chooser
+contact_links:
+  - name: 💬 Questions & Help
+    url: https://github.com/web3refi/web3refi/discussions/categories/q-a
+    about: Ask questions and get help from the community (not for bug reports)
+
+  - name: 💡 Ideas & Suggestions
+    url: https://github.com/web3refi/web3refi/discussions/categories/ideas
+    about: Share ideas for new features or improvements before opening a feature request
+
+  - name: 🎯 Show & Tell
+    url: https://github.com/web3refi/web3refi/discussions/categories/show-and-tell
+    about: Share what you've built with web3refi
+
+  - name: 💬 Discord Community
+    url: https://discord.gg/web3refi
+    about: Chat with the community in real-time for quick questions
+
+  - name: 📚 Documentation
+    url: https://docs.web3refi.dev
+    about: Read the documentation - your answer might already be there!
+
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/web3refi/web3refi/security/policy
+    about: Report security vulnerabilities privately (do NOT create a public issue)
