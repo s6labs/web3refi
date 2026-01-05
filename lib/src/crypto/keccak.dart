@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:typed_data';
+import 'package:pointycastle/digests/keccak.dart';
 
 /// Keccak-256 hashing implementation for Ethereum.
 ///
@@ -22,9 +24,8 @@ class Keccak {
   ///
   /// Returns 32-byte hash as Uint8List.
   static Uint8List keccak256(Uint8List input) {
-    // TODO: Implement Keccak-256 using pointycastle
-    // Reference: https://github.com/bcgit/pc-dart/blob/master/tutorials/digest.md
-    throw UnimplementedError('Keccak-256 implementation pending');
+    final digest = KeccakDigest(256);
+    return digest.process(input);
   }
 
   /// Compute Keccak-256 hash and return as hex string with 0x prefix.
@@ -35,8 +36,8 @@ class Keccak {
 
   /// Hash a string and return hex result.
   static String keccak256StringHex(String input) {
-    // TODO: Convert string to bytes and hash
-    throw UnimplementedError('String hashing pending');
+    final bytes = Uint8List.fromList(utf8.encode(input));
+    return keccak256Hex(bytes);
   }
 
   /// Verify a hash matches input.

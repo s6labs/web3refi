@@ -34,20 +34,62 @@ class Signature {
       throw ArgumentError('Compact signature must be 65 bytes');
     }
 
-    // TODO: Parse r, s, v from bytes
-    throw UnimplementedError('Signature parsing pending');
+    // Extract r (first 32 bytes)
+    final rBytes = compact.sublist(0, 32);
+    final r = BigInt.parse(
+      rBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
+      radix: 16,
+    );
+
+    // Extract s (next 32 bytes)
+    final sBytes = compact.sublist(32, 64);
+    final s = BigInt.parse(
+      sBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
+      radix: 16,
+    );
+
+    // Extract v (last byte)
+    final v = compact[64];
+
+    return Signature(r: r, s: s, v: v);
   }
 
   /// Create signature from hex string.
   factory Signature.fromHex(String hex) {
-    // TODO: Parse hex and create signature
-    throw UnimplementedError('Hex signature parsing pending');
+    final cleanHex = hex.startsWith('0x') ? hex.substring(2) : hex;
+
+    if (cleanHex.length != 130) {
+      throw ArgumentError('Hex signature must be 130 characters (65 bytes)');
+    }
+
+    final bytes = Uint8List(65);
+    for (int i = 0; i < 65; i++) {
+      bytes[i] = int.parse(cleanHex.substring(i * 2, i * 2 + 2), radix: 16);
+    }
+
+    return Signature.fromCompact(bytes);
   }
 
   /// Serialize to compact 65-byte representation.
   Uint8List toCompact() {
-    // TODO: Serialize r, s, v to bytes
-    throw UnimplementedError('Signature serialization pending');
+    final result = Uint8List(65);
+
+    // Serialize r (32 bytes)
+    final rHex = r.toRadixString(16).padLeft(64, '0');
+    for (int i = 0; i < 32; i++) {
+      result[i] = int.parse(rHex.substring(i * 2, i * 2 + 2), radix: 16);
+    }
+
+    // Serialize s (32 bytes)
+    final sHex = s.toRadixString(16).padLeft(64, '0');
+    for (int i = 0; i < 32; i++) {
+      result[32 + i] = int.parse(sHex.substring(i * 2, i * 2 + 2), radix: 16);
+    }
+
+    // Serialize v (1 byte)
+    result[64] = v;
+
+    return result;
   }
 
   /// Serialize to hex string with 0x prefix.
@@ -58,8 +100,13 @@ class Signature {
 
   /// Get recovery ID (0 or 1) from v.
   int get recoveryId {
-    // TODO: Extract recovery ID from v value
-    throw UnimplementedError('Recovery ID extraction pending');
+    if (isEip155) {
+      // For EIP-155: v = chainId * 2 + 35 + recoveryId
+      return v - (chainId! * 2 + 35);
+    } else {
+      // For legacy: v = 27 + recoveryId
+      return v - 27;
+    }
   }
 
   /// Check if this is an EIP-155 signature.
