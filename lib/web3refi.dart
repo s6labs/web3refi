@@ -55,24 +55,66 @@ library web3refi;
 // ============================================================================
 export 'src/core/web3refi_base.dart';
 export 'src/core/web3refi_config.dart';
-export 'src/core/rpc_client.dart';
+export 'src/core/chain.dart';
 export 'src/core/chain_config.dart';
+export 'src/core/types.dart';
+export 'src/core/constants.dart';
 
 // ============================================================================
-// Models
+// Transport
 // ============================================================================
-export 'src/models/chain.dart';
-export 'src/models/transaction.dart';
-export 'src/models/wallet_connection.dart';
-export 'src/models/token_info.dart';
+export 'src/transport/rpc_client.dart';
 
 // ============================================================================
-// Exceptions
+// Crypto Primitives
 // ============================================================================
-export 'src/exceptions/web3_exception.dart';
-export 'src/exceptions/wallet_exception.dart';
-export 'src/exceptions/rpc_exception.dart';
-export 'src/exceptions/transaction_exception.dart';
+export 'src/crypto/keccak.dart';
+export 'src/crypto/signature.dart';
+export 'src/crypto/secp256k1.dart';
+export 'src/crypto/rlp.dart';
+export 'src/crypto/address.dart';
+
+// ============================================================================
+// ABI Encoding/Decoding
+// ============================================================================
+export 'src/abi/types/abi_types.dart';
+export 'src/abi/function_selector.dart';
+export 'src/abi/abi_coder.dart';
+
+// ============================================================================
+// Signers
+// ============================================================================
+export 'src/signers/hd_wallet.dart';
+
+// ============================================================================
+// Transactions
+// ============================================================================
+export 'src/transactions/transaction.dart';
+export 'src/transactions/eip2930_tx.dart';
+export 'src/transactions/eip1559_tx.dart';
+
+// ============================================================================
+// Message Signing
+// ============================================================================
+export 'src/signing/personal_sign.dart';
+export 'src/signing/typed_data.dart';
+export 'src/signing/siwe.dart';
+
+// ============================================================================
+// Token Standards
+// ============================================================================
+export 'src/standards/erc20.dart';
+export 'src/standards/erc721.dart';
+export 'src/standards/erc1155.dart';
+export 'src/standards/multicall.dart';
+
+// ============================================================================
+// Errors
+// ============================================================================
+export 'src/errors/web3_exception.dart';
+export 'src/errors/wallet_exception.dart';
+export 'src/errors/rpc_exception.dart';
+export 'src/errors/transaction_exception.dart';
 
 // ============================================================================
 // Wallet
@@ -86,7 +128,6 @@ export 'src/wallet/authentication/signature_verifier.dart';
 // DeFi / Token Operations
 // ============================================================================
 export 'src/defi/token_operations.dart';
-export 'src/defi/erc20.dart';
 export 'src/defi/token_helper.dart';
 
 // ============================================================================
@@ -104,9 +145,3 @@ export 'src/widgets/token_balance.dart';
 export 'src/widgets/chain_selector.dart';
 export 'src/widgets/messaging/chat_screen.dart';
 export 'src/widgets/messaging/inbox_screen.dart';
-
-// ============================================================================
-// Constants
-// ============================================================================
-export 'src/constants/chains.dart';
-export 'src/constants/tokens.dart';
