@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import '../transport/rpc_client.dart';
 import '../wallet/wallet_manager.dart';
+import '../abi/abi_coder.dart';
 
 /// ERC-721 Non-Fungible Token (NFT) interface.
 ///
@@ -42,20 +43,41 @@ class ERC721 {
 
   /// Get token name.
   Future<String> name() async {
-    // TODO: Call name() function
-    throw UnimplementedError('ERC-721 name() pending');
+    final data = AbiCoder.encodeFunctionCall('name()', []);
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['string'], result);
+    return decoded[0] as String;
   }
 
   /// Get token symbol.
   Future<String> symbol() async {
-    // TODO: Call symbol() function
-    throw UnimplementedError('ERC-721 symbol() pending');
+    final data = AbiCoder.encodeFunctionCall('symbol()', []);
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['string'], result);
+    return decoded[0] as String;
   }
 
   /// Get token URI for metadata.
   Future<String> tokenURI(BigInt tokenId) async {
-    // TODO: Call tokenURI(uint256) function
-    throw UnimplementedError('ERC-721 tokenURI() pending');
+    final data = AbiCoder.encodeFunctionCall('tokenURI(uint256)', [tokenId]);
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['string'], result);
+    return decoded[0] as String;
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -64,14 +86,28 @@ class ERC721 {
 
   /// Get number of NFTs owned by address.
   Future<BigInt> balanceOf(String owner) async {
-    // TODO: Call balanceOf(address) function
-    throw UnimplementedError('ERC-721 balanceOf() pending');
+    final data = AbiCoder.encodeFunctionCall('balanceOf(address)', [owner]);
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['uint256'], result);
+    return decoded[0] as BigInt;
   }
 
   /// Get owner of specific token.
   Future<String> ownerOf(BigInt tokenId) async {
-    // TODO: Call ownerOf(uint256) function
-    throw UnimplementedError('ERC-721 ownerOf() pending');
+    final data = AbiCoder.encodeFunctionCall('ownerOf(uint256)', [tokenId]);
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['address'], result);
+    return decoded[0] as String;
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -83,14 +119,32 @@ class ERC721 {
     required String to,
     required BigInt tokenId,
   }) async {
-    // TODO: Call approve(address,uint256) function
-    throw UnimplementedError('ERC-721 approve() pending');
+    if (walletManager == null) {
+      throw StateError('WalletManager required for approve()');
+    }
+
+    final data = AbiCoder.encodeFunctionCall(
+      'approve(address,uint256)',
+      [to, tokenId],
+    );
+
+    return await walletManager!.sendTransaction(
+      to: address,
+      data: data,
+    );
   }
 
   /// Get approved address for token.
   Future<String> getApproved(BigInt tokenId) async {
-    // TODO: Call getApproved(uint256) function
-    throw UnimplementedError('ERC-721 getApproved() pending');
+    final data = AbiCoder.encodeFunctionCall('getApproved(uint256)', [tokenId]);
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['address'], result);
+    return decoded[0] as String;
   }
 
   /// Set approval for all tokens.
@@ -98,8 +152,19 @@ class ERC721 {
     required String operator,
     required bool approved,
   }) async {
-    // TODO: Call setApprovalForAll(address,bool) function
-    throw UnimplementedError('ERC-721 setApprovalForAll() pending');
+    if (walletManager == null) {
+      throw StateError('WalletManager required for setApprovalForAll()');
+    }
+
+    final data = AbiCoder.encodeFunctionCall(
+      'setApprovalForAll(address,bool)',
+      [operator, approved],
+    );
+
+    return await walletManager!.sendTransaction(
+      to: address,
+      data: data,
+    );
   }
 
   /// Check if operator is approved for all owner's tokens.
@@ -107,8 +172,18 @@ class ERC721 {
     required String owner,
     required String operator,
   }) async {
-    // TODO: Call isApprovedForAll(address,address) function
-    throw UnimplementedError('ERC-721 isApprovedForAll() pending');
+    final data = AbiCoder.encodeFunctionCall(
+      'isApprovedForAll(address,address)',
+      [owner, operator],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['bool'], result);
+    return decoded[0] as bool;
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -121,8 +196,19 @@ class ERC721 {
     required String to,
     required BigInt tokenId,
   }) async {
-    // TODO: Call transferFrom(address,address,uint256) function
-    throw UnimplementedError('ERC-721 transferFrom() pending');
+    if (walletManager == null) {
+      throw StateError('WalletManager required for transferFrom()');
+    }
+
+    final data = AbiCoder.encodeFunctionCall(
+      'transferFrom(address,address,uint256)',
+      [from, to, tokenId],
+    );
+
+    return await walletManager!.sendTransaction(
+      to: address,
+      data: data,
+    );
   }
 
   /// Safely transfer token (calls onERC721Received on recipient).
@@ -132,8 +218,24 @@ class ERC721 {
     required BigInt tokenId,
     Uint8List? data,
   }) async {
-    // TODO: Call safeTransferFrom function
-    throw UnimplementedError('ERC-721 safeTransferFrom() pending');
+    if (walletManager == null) {
+      throw StateError('WalletManager required for safeTransferFrom()');
+    }
+
+    final callData = data != null
+        ? AbiCoder.encodeFunctionCall(
+            'safeTransferFrom(address,address,uint256,bytes)',
+            [from, to, tokenId, data],
+          )
+        : AbiCoder.encodeFunctionCall(
+            'safeTransferFrom(address,address,uint256)',
+            [from, to, tokenId],
+          );
+
+    return await walletManager!.sendTransaction(
+      to: address,
+      data: callData,
+    );
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -141,6 +243,8 @@ class ERC721 {
   // ══════════════════════════════════════════════════════════════════════════
 
   /// Get Transfer events.
+  ///
+  /// Event signature: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
   Future<List<Map<String, dynamic>>> getTransferEvents({
     String? from,
     String? to,
@@ -148,7 +252,40 @@ class ERC721 {
     dynamic fromBlock = 'latest',
     dynamic toBlock = 'latest',
   }) async {
-    // TODO: Query Transfer(address,address,uint256) events
-    throw UnimplementedError('ERC-721 event querying pending');
+    // Transfer event signature
+    final eventSig = AbiCoder.eventSignature('Transfer(address,address,uint256)');
+
+    // Build topics
+    final topics = <String?>[
+      eventSig,
+      from != null ? AbiCoder.encodeIndexedParameter(from, 'address') : null,
+      to != null ? AbiCoder.encodeIndexedParameter(to, 'address') : null,
+      tokenId != null ? AbiCoder.encodeIndexedParameter(tokenId, 'uint256') : null,
+    ];
+
+    // Get logs
+    final logs = await rpcClient.getLogs(
+      address: address,
+      topics: topics,
+      fromBlock: fromBlock,
+      toBlock: toBlock,
+    );
+
+    // Parse logs
+    return logs.map((log) {
+      // Indexed parameters are in topics
+      final fromAddr = log['topics'][1] as String;
+      final toAddr = log['topics'][2] as String;
+      final tokenIdHex = log['topics'][3] as String;
+
+      return {
+        'from': AbiCoder.decodeAddress(fromAddr),
+        'to': AbiCoder.decodeAddress(toAddr),
+        'tokenId': AbiCoder.decodeUint256(tokenIdHex),
+        'blockNumber': log['blockNumber'],
+        'transactionHash': log['transactionHash'],
+        'logIndex': log['logIndex'],
+      };
+    }).toList();
   }
 }
