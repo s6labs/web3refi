@@ -44,9 +44,7 @@ class PersonalSign {
     combined.setAll(0, prefixBytes);
     combined.setAll(prefixBytes.length, messageBytes);
 
-    // TODO: Hash with Keccak-256
-    // return Keccak.keccak256(combined);
-    throw UnimplementedError('Personal sign hashing pending');
+    return Keccak.keccak256(combined);
   }
 
   /// Sign a message.
@@ -88,10 +86,11 @@ class PersonalSign {
   }) {
     final hash = hashMessage(message);
 
-    // TODO: Recover public key and derive address
-    // final publicKey = signature.recoverPublicKey(hash);
-    // return EthereumAddress.fromPublicKey(publicKey);
-    throw UnimplementedError('Address recovery pending');
+    // Recover public key from signature
+    final publicKey = signature.recoverPublicKey(hash);
+
+    // Derive address from public key
+    return EthereumAddress.fromPublicKey(publicKey);
   }
 
   /// Recover signer address from compact signature.

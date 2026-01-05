@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import '../crypto/keccak.dart';
 
@@ -29,11 +30,11 @@ class FunctionSelector {
   /// - "balanceOf(address)"
   /// - "approve(address,uint256)"
   factory FunctionSelector.fromSignature(String signature) {
-    // TODO: Hash signature and take first 4 bytes
-    // final hash = Keccak.keccak256(utf8.encode(signature));
-    // return FunctionSelector(Uint8List.fromList(hash.sublist(0, 4)));
+    // Hash the signature string
+    final hash = Keccak.keccak256(Uint8List.fromList(utf8.encode(signature)));
 
-    throw UnimplementedError('Function selector calculation pending');
+    // Take first 4 bytes
+    return FunctionSelector(Uint8List.fromList(hash.sublist(0, 4)));
   }
 
   /// Create selector from hex string.
