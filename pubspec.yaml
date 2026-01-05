@@ -1,0 +1,50 @@
+name: web3refi
+description: >
+  The Universal Web3 SDK for Flutter. Seamlessly interact with Ethereum and EVM-compatible
+  blockchains, manage wallets, execute DeFi operations, and enable Web3 messaging.
+version: 2.0.0
+homepage: https://github.com/yourusername/web3refi
+repository: https://github.com/yourusername/web3refi
+issue_tracker: https://github.com/yourusername/web3refi/issues
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Cryptography
+  pointycastle: ^3.9.1
+  crypto: ^3.0.3
+
+  # HD Wallet
+  bip39: ^1.0.6
+  bip32: ^2.0.0
+
+  # HTTP & WebSocket
+  http: ^1.2.0
+  web_socket_channel: ^2.4.0
+
+  # Utilities
+  convert: ^3.1.1
+  collection: ^1.18.0
+  equatable: ^2.0.5
+
+  # Storage
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.2
+
+  # UI & Platform
+  url_launcher: ^6.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  mockito: ^5.4.4
+  build_runner: ^2.4.7
+
+flutter:
+  # This package does not contain any platform-specific UI
