@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../core/web3refi_base.dart';
-import '../models/transaction.dart';
-import '../models/chain.dart';
+import '../transactions/transaction.dart';
+import '../core/chain.dart';
 
 /// Displays real-time transaction status with progress indicator.
 ///

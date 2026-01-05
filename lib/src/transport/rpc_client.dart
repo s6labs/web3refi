@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/chain.dart';
-import '../exceptions/web3_exception.dart';
+import '../core/chain.dart';
+import '../errors/web3_exception.dart';
 
 /// JSON-RPC client for blockchain communication.
 ///

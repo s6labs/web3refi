@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'web3refi_config.dart';
-import 'rpc_client.dart';
-import '../models/chain.dart';
-import '../models/transaction.dart';
+import '../transport/rpc_client.dart';
+import '../core/chain.dart';
+import '../transactions/transaction.dart';
 import '../wallet/wallet_manager.dart';
-import '../defi/erc20.dart';
+import '../standards/erc20.dart';
 import '../defi/token_helper.dart';
 import '../messaging/message_client.dart';
-import '../exceptions/web3_exception.dart';
+import '../errors/web3_exception.dart';
 
 /// The main entry point for the web3refi SDK.
 ///

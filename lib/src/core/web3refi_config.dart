@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import '../models/chain.dart';
-import '../constants/chains.dart';
+import '../core/chain.dart';
+import 'constants/chains.dart';
 
 /// Configuration for initializing the Web3Refi SDK.
 ///

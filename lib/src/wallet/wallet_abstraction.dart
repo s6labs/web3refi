@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../models/chain.dart';
+import '../core/chain.dart';
 
 /// Base interface that ALL wallet adapters must implement.
 ///

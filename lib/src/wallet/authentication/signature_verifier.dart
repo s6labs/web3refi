@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:pointycastle/export.dart';
-import '../../models/chain.dart';
+import '../../core/chain.dart';
 import '../wallet_abstraction.dart';
 import 'auth_message.dart';
 

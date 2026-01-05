@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/chain.dart';
+import '../core/chain.dart';
 import '../core/web3refi_config.dart';
-import '../exceptions/web3_exception.dart';
+import '../errors/web3_exception.dart';
 import 'wallet_abstraction.dart';
 
 // ════════════════════════════════════════════════════════════════════════════

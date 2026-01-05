@@ -1,14 +1,14 @@
 import 'dart:async';
-import '../core/rpc_client.dart';
+import '../transport/rpc_client.dart';
 import '../wallet/wallet_manager.dart';
-import '../models/chain.dart';
-import '../models/transaction.dart';
-import '../constants/chains.dart';
-import '../constants/tokens.dart';
-import '../exceptions/web3_exception.dart';
-import 'erc20.dart';
+import '../core/chain.dart';
+import '../transactions/transaction.dart';
+import '../core/constants/chains.dart';
+import '../core/constants/tokens.dart';
+import '../errors/web3_exception.dart';
+import '../standards/erc20.dart';
 import 'token_helper.dart';
-import 'abi_codec.dart';
+import '../standards/abi_codec.dart';
 
 /// Advanced token operations for DeFi interactions.
 ///

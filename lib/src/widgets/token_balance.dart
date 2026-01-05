@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/web3refi_base.dart';
-import '../defi/erc20.dart';
+import '../standards/erc20.dart';
 
 /// Displays a token balance with automatic formatting.
 ///

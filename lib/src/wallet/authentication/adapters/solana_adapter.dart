@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:url_launcher/url_launcher.dart';
-import '../../models/chain.dart';
-import '../../exceptions/web3_exception.dart';
+import '../../core/chain.dart';
+import '../../errors/web3_exception.dart';
 import '../wallet_abstraction.dart';
 import '../authentication/auth_message.dart';
 

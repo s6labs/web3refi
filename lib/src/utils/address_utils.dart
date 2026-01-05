@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:pointycastle/digests/keccak.dart';
-import '../models/chain.dart';
+import '../core/chain.dart';
 import 'hex_utils.dart';
 
 /// Utilities for working with blockchain addresses.

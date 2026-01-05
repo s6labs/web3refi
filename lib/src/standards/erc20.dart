@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
-import '../core/rpc_client.dart';
+import '../transport/rpc_client.dart';
 import '../wallet/wallet_manager.dart';
-import '../models/chain.dart';
-import '../models/transaction.dart';
-import '../exceptions/web3_exception.dart';
+import '../core/chain.dart';
+import '../transactions/transaction.dart';
+import '../errors/web3_exception.dart';
 import 'abi_codec.dart';
 
 /// ERC-20 token contract interface.

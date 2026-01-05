@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../wallet/wallet_manager.dart';
-import '../../exceptions/web3_exception.dart';
+import '../../errors/web3_exception.dart';
 import 'mailchain_inbox.dart';
 
 /// Mailchain client for blockchain email.

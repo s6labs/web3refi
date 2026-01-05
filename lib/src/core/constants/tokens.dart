@@ -1,4 +1,4 @@
-import '../models/token_info.dart';
+import '../types.dart';
 
 /// Predefined token addresses and metadata for supported chains.
 ///

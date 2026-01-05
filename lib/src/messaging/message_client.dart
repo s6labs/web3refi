@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../wallet/wallet_manager.dart';
-import '../exceptions/web3_exception.dart';
+import '../errors/web3_exception.dart';
 import 'xmtp/xmtp_client.dart';
 import 'mailchain/mailchain_client.dart';
 

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import '../../wallet/wallet_manager.dart';
-import '../../exceptions/web3_exception.dart';
+import '../../errors/web3_exception.dart';
 import 'xmtp_conversation.dart';
 
 /// XMTP client for real-time Web3 messaging.

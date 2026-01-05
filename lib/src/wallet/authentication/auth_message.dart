@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-import '../../models/chain.dart';
+import '../../core/chain.dart';
 
 /// Universal authentication message for "Sign-In with Wallet" flows.
 ///
