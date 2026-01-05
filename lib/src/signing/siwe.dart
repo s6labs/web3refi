@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import '../crypto/signature.dart';
 import '../signers/hd_wallet.dart';
 import 'personal_sign.dart';
@@ -199,6 +200,64 @@ class SiweMessage {
     return verify(signature);
   }
 
+  /// Verify signature and check validity constraints.
+  VerificationResult verifyAndValidate({
+    required Signature signature,
+    String? expectedDomain,
+    String? expectedNonce,
+    int? expectedChainId,
+  }) {
+    // 1. Verify signature is valid
+    if (!verify(signature)) {
+      return VerificationResult(
+        isValid: false,
+        error: 'Invalid signature',
+      );
+    }
+
+    // 2. Check domain matches (anti-phishing)
+    if (expectedDomain != null && domain != expectedDomain) {
+      return VerificationResult(
+        isValid: false,
+        error: 'Domain mismatch: expected $expectedDomain, got $domain',
+      );
+    }
+
+    // 3. Check nonce matches (replay protection)
+    if (expectedNonce != null && nonce != expectedNonce) {
+      return VerificationResult(
+        isValid: false,
+        error: 'Nonce mismatch',
+      );
+    }
+
+    // 4. Check chain ID matches
+    if (expectedChainId != null && chainId != expectedChainId) {
+      return VerificationResult(
+        isValid: false,
+        error: 'Chain ID mismatch: expected $expectedChainId, got $chainId',
+      );
+    }
+
+    // 5. Check not expired
+    if (isExpired) {
+      return VerificationResult(
+        isValid: false,
+        error: 'Message expired at ${_formatDateTime(expirationTime!)}',
+      );
+    }
+
+    // 6. Check valid yet (not-before constraint)
+    if (!isValidYet) {
+      return VerificationResult(
+        isValid: false,
+        error: 'Message not valid until ${_formatDateTime(notBefore!)}',
+      );
+    }
+
+    return VerificationResult(isValid: true);
+  }
+
   /// Check if message is expired.
   bool get isExpired {
     if (expirationTime == null) return false;
@@ -216,8 +275,139 @@ class SiweMessage {
 
   /// Parse SIWE message from string.
   factory SiweMessage.fromMessage(String message) {
-    // TODO: Parse SIWE message format
-    throw UnimplementedError('SIWE message parsing pending');
+    final lines = message.split('\n');
+    int index = 0;
+
+    // Parse header: "${domain} wants you to sign in with your Ethereum account:"
+    if (index >= lines.length) {
+      throw ArgumentError('Invalid SIWE message: missing header');
+    }
+    final headerPattern = RegExp(r'^(.+) wants you to sign in with your Ethereum account:$');
+    final headerMatch = headerPattern.firstMatch(lines[index]);
+    if (headerMatch == null) {
+      throw ArgumentError('Invalid SIWE message: malformed header');
+    }
+    final domain = headerMatch.group(1)!;
+    index++;
+
+    // Parse address
+    if (index >= lines.length) {
+      throw ArgumentError('Invalid SIWE message: missing address');
+    }
+    final address = lines[index].trim();
+    index++;
+
+    // Skip empty line
+    if (index < lines.length && lines[index].trim().isEmpty) {
+      index++;
+    }
+
+    // Parse statement (optional, ends at empty line or field line)
+    String? statement;
+    final statementLines = <String>[];
+    while (index < lines.length &&
+           lines[index].trim().isNotEmpty &&
+           !lines[index].contains(':')) {
+      statementLines.add(lines[index]);
+      index++;
+    }
+    if (statementLines.isNotEmpty) {
+      statement = statementLines.join('\n');
+    }
+
+    // Skip empty line
+    if (index < lines.length && lines[index].trim().isEmpty) {
+      index++;
+    }
+
+    // Parse fields
+    String? uri;
+    String? version;
+    int? chainId;
+    String? nonce;
+    DateTime? issuedAt;
+    DateTime? expirationTime;
+    DateTime? notBefore;
+    String? requestId;
+    List<String>? resources;
+
+    while (index < lines.length) {
+      final line = lines[index].trim();
+
+      if (line.isEmpty) {
+        index++;
+        continue;
+      }
+
+      if (line == 'Resources:') {
+        // Parse resources list
+        index++;
+        resources = [];
+        while (index < lines.length && lines[index].startsWith('- ')) {
+          resources.add(lines[index].substring(2));
+          index++;
+        }
+        continue;
+      }
+
+      final colonIndex = line.indexOf(':');
+      if (colonIndex == -1) {
+        index++;
+        continue;
+      }
+
+      final key = line.substring(0, colonIndex).trim();
+      final value = line.substring(colonIndex + 1).trim();
+
+      switch (key) {
+        case 'URI':
+          uri = value;
+          break;
+        case 'Version':
+          version = value;
+          break;
+        case 'Chain ID':
+          chainId = int.tryParse(value);
+          break;
+        case 'Nonce':
+          nonce = value;
+          break;
+        case 'Issued At':
+          issuedAt = DateTime.tryParse(value);
+          break;
+        case 'Expiration Time':
+          expirationTime = DateTime.tryParse(value);
+          break;
+        case 'Not Before':
+          notBefore = DateTime.tryParse(value);
+          break;
+        case 'Request ID':
+          requestId = value;
+          break;
+      }
+
+      index++;
+    }
+
+    // Validate required fields
+    if (uri == null || version == null || chainId == null || nonce == null || issuedAt == null) {
+      throw ArgumentError('Invalid SIWE message: missing required fields');
+    }
+
+    return SiweMessage(
+      domain: domain,
+      address: address,
+      statement: statement,
+      uri: uri,
+      version: version,
+      chainId: chainId,
+      nonce: nonce,
+      issuedAt: issuedAt,
+      expirationTime: expirationTime,
+      notBefore: notBefore,
+      requestId: requestId,
+      resources: resources,
+    );
   }
 
   /// Format DateTime as ISO 8601.
@@ -225,11 +415,11 @@ class SiweMessage {
     return dt.toUtc().toIso8601String();
   }
 
-  /// Generate random nonce.
+  /// Generate cryptographically secure random nonce.
   static String _generateNonce() {
-    // TODO: Generate cryptographically secure random nonce
-    // For now, use timestamp + random
-    return DateTime.now().millisecondsSinceEpoch.toString();
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    return base64Url.encode(bytes).replaceAll('=', '');
   }
 
   /// Convert to JSON.
@@ -249,6 +439,66 @@ class SiweMessage {
         if (resources != null) 'resources': resources,
       };
 
+  /// Create from JSON.
+  factory SiweMessage.fromJson(Map<String, dynamic> json) {
+    return SiweMessage(
+      domain: json['domain'] as String,
+      address: json['address'] as String,
+      statement: json['statement'] as String?,
+      uri: json['uri'] as String,
+      version: json['version'] as String,
+      chainId: json['chainId'] as int,
+      nonce: json['nonce'] as String,
+      issuedAt: DateTime.parse(json['issuedAt'] as String),
+      expirationTime: json['expirationTime'] != null
+          ? DateTime.parse(json['expirationTime'] as String)
+          : null,
+      notBefore: json['notBefore'] != null
+          ? DateTime.parse(json['notBefore'] as String)
+          : null,
+      requestId: json['requestId'] as String?,
+      resources: json['resources'] != null
+          ? List<String>.from(json['resources'] as List)
+          : null,
+    );
+  }
+
   @override
   String toString() => toMessage();
+}
+
+/// Result of SIWE verification.
+class VerificationResult {
+  final bool isValid;
+  final String? error;
+
+  VerificationResult({
+    required this.isValid,
+    this.error,
+  });
+
+  @override
+  String toString() => isValid ? 'Valid' : 'Invalid: $error';
+}
+
+/// Helper for generating secure nonces.
+class SiweNonce {
+  /// Generate a cryptographically secure random nonce.
+  static String generate() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    return base64Url.encode(bytes).replaceAll('=', '');
+  }
+
+  /// Generate a nonce with custom length (in bytes).
+  static String generateWithLength(int bytes) {
+    final random = Random.secure();
+    final bytesList = List<int>.generate(bytes, (_) => random.nextInt(256));
+    return base64Url.encode(bytesList).replaceAll('=', '');
+  }
+
+  /// Validate nonce format (alphanumeric + - and _).
+  static bool isValid(String nonce) {
+    return RegExp(r'^[A-Za-z0-9\-_]+$').hasMatch(nonce);
+  }
 }
