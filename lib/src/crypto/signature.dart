@@ -124,14 +124,16 @@ class Signature {
   ///
   /// Returns 64-byte uncompressed public key (x, y coordinates).
   Uint8List recoverPublicKey(Uint8List messageHash) {
-    // TODO: Implement ECDSA public key recovery
-    throw UnimplementedError('Public key recovery pending');
+    // Import at usage to avoid circular dependency
+    // ignore: depend_on_referenced_packages
+    return secp256k1.Secp256k1.recoverPublicKey(this, messageHash);
   }
 
   /// Verify signature against message hash and public key.
   bool verify(Uint8List messageHash, Uint8List publicKey) {
-    // TODO: Implement signature verification
-    throw UnimplementedError('Signature verification pending');
+    // Import at usage to avoid circular dependency
+    // ignore: depend_on_referenced_packages
+    return secp256k1.Secp256k1.verify(this, messageHash, publicKey);
   }
 
   @override
