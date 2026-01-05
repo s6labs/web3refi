@@ -1,0 +1,165 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# web3refi Publish Workflow
+# Created by S6 Labs LLC
+#
+# Publishes the package to pub.dev when a new release is created.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Publish to pub.dev
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (do not actually publish)'
+        required: false
+        default: 'true'
+        type: boolean
+
+env:
+  FLUTTER_VERSION: '3.16.0'
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # VALIDATE
+  # ═══════════════════════════════════════════════════════════════════════════
+  validate:
+    name: Validate Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze code
+        run: flutter analyze --fatal-infos
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Validate pub.dev requirements
+        run: flutter pub publish --dry-run
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PUBLISH
+  # ═══════════════════════════════════════════════════════════════════════════
+  publish:
+    name: Publish Package
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'release' || github.event.inputs.dry_run == 'false'
+    
+    permissions:
+      id-token: write  # Required for pub.dev authentication
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Publish to pub.dev
+        run: dart pub publish --force
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # POST-PUBLISH
+  # ═══════════════════════════════════════════════════════════════════════════
+  post-publish:
+    name: Post-Publish Tasks
+    runs-on: ubuntu-latest
+    needs: publish
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | head -1 | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release notes
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'release'
+        with:
+          body: |
+            ## web3refi v${{ steps.version.outputs.version }}
+            
+            📦 [View on pub.dev](https://pub.dev/packages/web3refi/versions/${{ steps.version.outputs.version }})
+            
+            📚 [Documentation](https://docs.web3refi.dev)
+            
+            See [CHANGELOG.md](https://github.com/web3refi/web3refi/blob/main/CHANGELOG.md) for full release notes.
+          append_body: true
+
+      - name: Notify Discord
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          if [ -n "$DISCORD_WEBHOOK" ]; then
+            curl -H "Content-Type: application/json" \
+                 -X POST \
+                 -d "{\"content\": \"🎉 **web3refi v${{ steps.version.outputs.version }}** has been published to pub.dev! https://pub.dev/packages/web3refi\"}" \
+                 $DISCORD_WEBHOOK
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DRY RUN (Manual trigger only)
+  # ═══════════════════════════════════════════════════════════════════════════
+  dry-run:
+    name: Dry Run
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Dry run publish
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "DRY RUN - Package will NOT be published"
+          echo "═══════════════════════════════════════════════════════════════"
+          flutter pub publish --dry-run
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "DRY RUN COMPLETE - All checks passed!"
+          echo "═══════════════════════════════════════════════════════════════"
