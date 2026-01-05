@@ -24,21 +24,26 @@ class EthereumAddress {
       throw ArgumentError('Public key must be 64 or 65 bytes');
     }
 
-    // Remove 0x04 prefix if present
+    // Remove 0x04 prefix if present (uncompressed key marker)
     final key = publicKey.length == 65 ? publicKey.sublist(1) : publicKey;
 
-    // TODO: Hash and take last 20 bytes
-    // final hash = Keccak.keccak256(key);
-    // final addressBytes = hash.sublist(12); // Last 20 bytes
-    // return toChecksumAddress(bytesToHex(addressBytes));
+    // Hash the public key
+    final hash = Keccak.keccak256(key);
 
-    throw UnimplementedError('Address derivation pending');
+    // Take last 20 bytes
+    final addressBytes = hash.sublist(12);
+
+    // Convert to hex and apply checksum
+    final addressHex = bytesToHex(addressBytes);
+    return toChecksumAddress(addressHex);
   }
 
   /// Derive address from private key.
   static String fromPrivateKey(Uint8List privateKey) {
-    // TODO: Generate public key first, then derive address
-    throw UnimplementedError('Address from private key pending');
+    // This requires secp256k1, will be implemented after secp256k1.dart
+    throw UnimplementedError(
+      'Address from private key requires secp256k1 implementation'
+    );
   }
 
   /// Apply EIP-55 checksum to address.
@@ -61,10 +66,25 @@ class EthereumAddress {
       throw ArgumentError('Address must be 40 hex characters');
     }
 
-    // TODO: Implement EIP-55 checksumming
-    // 1. Hash lowercase address
-    // 2. For each character, capitalize if corresponding hash character >= 8
-    throw UnimplementedError('Checksum address pending');
+    // Hash the lowercase address
+    final hash = Keccak.keccak256StringHex(cleanAddress);
+    final hashHex = hash.substring(2); // Remove 0x prefix
+
+    // Build checksummed address
+    final result = StringBuffer('0x');
+    for (int i = 0; i < 40; i++) {
+      final char = cleanAddress[i];
+      final hashChar = hashHex[i];
+
+      // Capitalize if hash character is >= 8 (hex)
+      if (int.parse(hashChar, radix: 16) >= 8) {
+        result.write(char.toUpperCase());
+      } else {
+        result.write(char);
+      }
+    }
+
+    return result.toString();
   }
 
   /// Validate address format and checksum.
