@@ -45,6 +45,9 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -113,6 +116,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
+
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
 
       - name: Install dependencies
         run: flutter pub get
@@ -247,6 +253,9 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
+
       - name: Verify pubspec.yaml integrity
         run: |
           echo "═══════════════════════════════════════════════════════════════"
@@ -313,6 +322,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
+
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
 
       - name: Install dependencies
         run: flutter pub get
