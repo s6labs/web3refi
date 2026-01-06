@@ -3,9 +3,9 @@ description: >
   The Universal Web3 SDK for Flutter. Seamlessly interact with Ethereum and EVM-compatible
   blockchains, manage wallets, execute DeFi operations, and enable Web3 messaging.
 version: 2.0.0
-homepage: https://github.com/yourusername/web3refi
-repository: https://github.com/yourusername/web3refi
-issue_tracker: https://github.com/yourusername/web3refi/issues
+homepage: https://github.com/s6labs/web3refi
+repository: https://github.com/s6labs/web3refi
+issue_tracker: https://github.com/s6labs/web3refi/issues
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
