@@ -33,13 +33,30 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          echo "Installing dependencies..."
+          flutter pub get || { echo "❌ flutter pub get failed"; exit 1; }
+          echo "✓ Dependencies installed successfully"
 
       - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed .
+        run: |
+          echo "Checking code formatting..."
+          dart format --output=none --set-exit-if-changed . || { echo "❌ Code formatting check failed"; exit 1; }
+          echo "✓ Code formatting OK"
 
       - name: Analyze code
-        run: flutter analyze --fatal-infos
+        run: |
+          echo "Running static analysis..."
+          flutter analyze --fatal-infos 2>&1 | tee analyze_output.txt
+          RESULT=${PIPESTATUS[0]}
+          if [ $RESULT -ne 0 ]; then
+            echo "❌ Static analysis failed"
+            echo ""
+            echo "=== Top 20 Errors ==="
+            grep "error •" analyze_output.txt | head -20 || echo "No specific errors found"
+            exit 1
+          fi
+          echo "✓ Static analysis passed"
 
       - name: Check publish warnings
         run: flutter pub publish --dry-run
@@ -62,10 +79,24 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          echo "Installing dependencies..."
+          flutter pub get || { echo "❌ flutter pub get failed"; exit 1; }
+          echo "✓ Dependencies installed"
 
       - name: Run tests with coverage
-        run: flutter test --coverage --coverage-path=coverage/lcov.info
+        run: |
+          echo "Running tests with coverage..."
+          flutter test --coverage --coverage-path=coverage/lcov.info 2>&1 | tee test_output.txt
+          RESULT=${PIPESTATUS[0]}
+          if [ $RESULT -ne 0 ]; then
+            echo "❌ Tests failed"
+            echo ""
+            echo "=== Test Failures ==="
+            grep -A 5 "FAILED" test_output.txt | head -50 || echo "No specific test failures found"
+            exit 1
+          fi
+          echo "✓ All tests passed"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
