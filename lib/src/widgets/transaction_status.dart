@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../core/web3refi_base.dart';
-import '../transactions/transaction.dart';
-import '../core/chain.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
+import 'package:web3refi/src/transactions/transaction.dart';
+import 'package:web3refi/src/core/chain.dart';
 
 /// Displays real-time transaction status with progress indicator.
 ///
@@ -52,8 +52,7 @@ class TransactionStatus extends StatefulWidget {
   final VoidCallback? onDismiss;
 
   const TransactionStatus({
-    super.key,
-    required this.txHash,
+    required this.txHash, super.key,
     this.onConfirmed,
     this.onFailed,
     this.confirmations = 1,
@@ -291,7 +290,7 @@ class _TransactionStatusState extends State<TransactionStatus>
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildStatusIcon() {
-    final size = 56.0;
+    const size = 56.0;
     
     if (_isPolling) {
       return AnimatedBuilder(
@@ -542,8 +541,7 @@ class TransactionList extends StatelessWidget {
   final Widget? emptyWidget;
 
   const TransactionList({
-    super.key,
-    required this.transactions,
+    required this.transactions, super.key,
     this.onTransactionTap,
     this.emptyWidget,
   });

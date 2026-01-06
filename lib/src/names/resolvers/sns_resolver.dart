@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../name_resolver.dart';
-import '../resolution_result.dart';
+import 'package:web3refi/src/names/name_resolver.dart';
+import 'package:web3refi/src/names/resolution_result.dart';
 
 /// Solana Name Service (SNS) resolver.
 ///

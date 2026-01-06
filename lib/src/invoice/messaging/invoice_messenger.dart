@@ -1,10 +1,10 @@
 import 'dart:convert';
-import '../core/invoice.dart';
-import '../core/invoice_status.dart';
-import '../../messaging/xmtp/xmtp_client.dart';
-import '../../messaging/mailchain/mailchain_client.dart';
-import '../../names/universal_name_service.dart';
-import 'invoice_formatter.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/messaging/xmtp/xmtp_client.dart';
+import 'package:web3refi/src/messaging/mailchain/mailchain_client.dart';
+import 'package:web3refi/src/names/universal_name_service.dart';
+import 'package:web3refi/src/invoice/messaging/invoice_formatter.dart';
 
 /// Handles sending invoices via XMTP and Mailchain
 class InvoiceMessenger {

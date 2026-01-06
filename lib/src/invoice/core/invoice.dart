@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'invoice_item.dart';
-import 'payment_info.dart';
-import 'invoice_status.dart';
+import 'package:web3refi/src/invoice/core/invoice_item.dart';
+import 'package:web3refi/src/invoice/core/payment_info.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
 
 /// Complete invoice model with all features
 class Invoice extends Equatable {
@@ -280,36 +280,21 @@ class Invoice extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     required this.from,
-    this.fromName,
+    required this.to, required this.title, required this.items, required this.currency, required this.tokenAddress, required this.chainId, required this.subtotal, required this.taxAmount, required this.total, required this.dueDate, required this.acceptedTokens, required this.acceptedChains, required this.status, required this.paidAmount, required this.remainingAmount, this.fromName,
     this.fromCompany,
     this.fromEmail,
-    required this.to,
     this.toName,
     this.toCompany,
     this.toEmail,
-    required this.title,
     this.description,
-    required this.items,
-    required this.currency,
-    required this.tokenAddress,
-    required this.chainId,
-    required this.subtotal,
-    required this.taxAmount,
     this.taxRate,
     this.discount,
     this.discountPercentage,
     this.shippingCost,
-    required this.total,
-    required this.dueDate,
     this.paymentTerms,
-    required this.acceptedTokens,
-    required this.acceptedChains,
     this.lateFeePercentage,
     this.lateFeeAmount,
-    required this.status,
     this.payments = const [],
-    required this.paidAmount,
-    required this.remainingAmount,
     this.sentAt,
     this.viewedAt,
     this.paidAt,
@@ -351,6 +336,9 @@ class Invoice extends Equatable {
   // ═══════════════════════════════════════════════════════════════════════
   // COMPUTED PROPERTIES
   // ═══════════════════════════════════════════════════════════════════════
+
+  /// Issue date (alias for createdAt for compatibility)
+  DateTime get issueDate => createdAt;
 
   /// Whether invoice is fully paid
   bool get isPaid => status == InvoiceStatus.paid;
@@ -770,8 +758,7 @@ class RecurringConfig extends Equatable {
 
   const RecurringConfig({
     required this.frequency,
-    this.customInterval,
-    required this.startDate,
+    required this.startDate, this.customInterval,
     this.endDate,
     this.maxOccurrences,
     this.currentOccurrence = 0,
@@ -864,13 +851,33 @@ class FactoringConfig extends Equatable {
   /// When factoring was enabled
   final DateTime enabledAt;
 
+  /// Factoring listing ID (set when listed for factoring)
+  final String? listingId;
+
+  /// When the invoice was listed for factoring
+  final DateTime? listedAt;
+
+  /// Address of the buyer who purchased the factored invoice
+  final String? buyer;
+
+  /// When the invoice was sold to a factor
+  final DateTime? soldAt;
+
+  /// Price paid by the factor to purchase the invoice
+  final BigInt? factorPrice;
+
   const FactoringConfig({
     required this.discountRate,
     required this.minPrice,
+    required this.enabledAt,
     this.enabled = true,
     this.allowedBuyers,
     this.platformFeePercentage,
-    required this.enabledAt,
+    this.listingId,
+    this.listedAt,
+    this.buyer,
+    this.soldAt,
+    this.factorPrice,
   });
 
   /// Calculate factor price from invoice total
@@ -889,6 +896,11 @@ class FactoringConfig extends Equatable {
       if (allowedBuyers != null) 'allowedBuyers': allowedBuyers,
       if (platformFeePercentage != null) 'platformFeePercentage': platformFeePercentage,
       'enabledAt': enabledAt.toIso8601String(),
+      if (listingId != null) 'listingId': listingId,
+      if (listedAt != null) 'listedAt': listedAt!.toIso8601String(),
+      if (buyer != null) 'buyer': buyer,
+      if (soldAt != null) 'soldAt': soldAt!.toIso8601String(),
+      if (factorPrice != null) 'factorPrice': factorPrice.toString(),
     };
   }
 
@@ -901,6 +913,11 @@ class FactoringConfig extends Equatable {
           json['allowedBuyers'] != null ? List<String>.from(json['allowedBuyers'] as List) : null,
       platformFeePercentage: json['platformFeePercentage'] as double?,
       enabledAt: DateTime.parse(json['enabledAt'] as String),
+      listingId: json['listingId'] as String?,
+      listedAt: json['listedAt'] != null ? DateTime.parse(json['listedAt'] as String) : null,
+      buyer: json['buyer'] as String?,
+      soldAt: json['soldAt'] != null ? DateTime.parse(json['soldAt'] as String) : null,
+      factorPrice: json['factorPrice'] != null ? BigInt.parse(json['factorPrice'] as String) : null,
     );
   }
 
@@ -912,5 +929,10 @@ class FactoringConfig extends Equatable {
         allowedBuyers,
         platformFeePercentage,
         enabledAt,
+        listingId,
+        listedAt,
+        buyer,
+        soldAt,
+        factorPrice,
       ];
 }

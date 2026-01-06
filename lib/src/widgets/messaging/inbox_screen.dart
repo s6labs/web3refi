@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../core/web3refi_base.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
 
 /// A complete inbox screen for Mailchain blockchain email.
 ///
@@ -668,9 +668,7 @@ class _ComposeScreen extends StatefulWidget {
   final VoidCallback onSent;
 
   const _ComposeScreen({
-    this.replyTo,
-    required this.theme,
-    required this.onSent,
+    required this.theme, required this.onSent, this.replyTo,
   });
 
   @override

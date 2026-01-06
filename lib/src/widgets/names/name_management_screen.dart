@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../names/registry/registration_controller.dart';
-import '../../names/universal_name_service.dart';
-import '../../core/web3refi_base.dart';
-import 'name_display.dart';
+import 'package:web3refi/src/names/registry/registration_controller.dart';
+import 'package:web3refi/src/names/universal_name_service.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
+import 'package:web3refi/src/widgets/names/name_display.dart';
 
 /// Complete screen for managing owned names
 ///
@@ -50,7 +50,7 @@ class NameManagementScreen extends StatefulWidget {
   final Widget? emptyStateWidget;
 
   const NameManagementScreen({
-    Key? key,
+    super.key,
     required this.registryAddress,
     required this.resolverAddress,
     this.userAddress,
@@ -58,7 +58,7 @@ class NameManagementScreen extends StatefulWidget {
     this.showAppBar = true,
     this.enableRefresh = true,
     this.emptyStateWidget,
-  }) : super(key: key);
+  });
 
   @override
   State<NameManagementScreen> createState() => _NameManagementScreenState();
@@ -281,23 +281,23 @@ class _NameManagementScreenState extends State<NameManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Renewal Duration'),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _DurationOption(
-              duration: const Duration(days: 90),
+              duration: Duration(days: 90),
               label: '3 months',
             ),
             _DurationOption(
-              duration: const Duration(days: 365),
+              duration: Duration(days: 365),
               label: '1 year',
             ),
             _DurationOption(
-              duration: const Duration(days: 730),
+              duration: Duration(days: 730),
               label: '2 years',
             ),
             _DurationOption(
-              duration: const Duration(days: 1095),
+              duration: Duration(days: 1095),
               label: '3 years',
             ),
           ],

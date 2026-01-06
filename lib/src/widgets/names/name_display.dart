@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../names/universal_name_service.dart';
-import '../../core/web3refi_base.dart';
+import 'package:web3refi/src/names/universal_name_service.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
 
 /// Display widget for showing names with avatars and metadata
 ///
@@ -60,7 +60,7 @@ class NameDisplay extends StatefulWidget {
   final TextStyle? addressStyle;
 
   const NameDisplay({
-    Key? key,
+    super.key,
     required this.address,
     this.name,
     this.showAvatar = true,
@@ -72,7 +72,7 @@ class NameDisplay extends StatefulWidget {
     this.onTap,
     this.nameStyle,
     this.addressStyle,
-  }) : super(key: key);
+  });
 
   @override
   State<NameDisplay> createState() => _NameDisplayState();

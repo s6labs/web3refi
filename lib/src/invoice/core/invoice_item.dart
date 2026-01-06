@@ -35,6 +35,9 @@ class InvoiceItem extends Equatable {
   /// Optional unit of measurement
   final String? unit;
 
+  /// Optional notes for this line item
+  final String? notes;
+
   /// Custom metadata
   final Map<String, dynamic>? metadata;
 
@@ -50,21 +53,23 @@ class InvoiceItem extends Equatable {
     this.discountPercentage,
     this.category,
     this.unit,
+    this.notes,
     this.metadata,
   });
 
   /// Create item with auto-calculated total
   factory InvoiceItem.create({
-    String? id,
     required String description,
     required int quantity,
     required BigInt unitPrice,
+    String? id,
     String? sku,
     double? taxRate,
     BigInt? discount,
     double? discountPercentage,
     String? category,
     String? unit,
+    String? notes,
     Map<String, dynamic>? metadata,
   }) {
     final itemId = id ?? DateTime.now().millisecondsSinceEpoch.toString();
@@ -90,6 +95,7 @@ class InvoiceItem extends Equatable {
       discountPercentage: discountPercentage,
       category: category,
       unit: unit,
+      notes: notes,
       metadata: metadata,
     );
   }
@@ -120,6 +126,7 @@ class InvoiceItem extends Equatable {
     double? discountPercentage,
     String? category,
     String? unit,
+    String? notes,
     Map<String, dynamic>? metadata,
   }) {
     return InvoiceItem(
@@ -134,6 +141,7 @@ class InvoiceItem extends Equatable {
       discountPercentage: discountPercentage ?? this.discountPercentage,
       category: category ?? this.category,
       unit: unit ?? this.unit,
+      notes: notes ?? this.notes,
       metadata: metadata ?? this.metadata,
     );
   }
@@ -152,6 +160,7 @@ class InvoiceItem extends Equatable {
       if (discountPercentage != null) 'discountPercentage': discountPercentage,
       if (category != null) 'category': category,
       if (unit != null) 'unit': unit,
+      if (notes != null) 'notes': notes,
       if (metadata != null) 'metadata': metadata,
     };
   }
@@ -170,6 +179,7 @@ class InvoiceItem extends Equatable {
       discountPercentage: json['discountPercentage'] as double?,
       category: json['category'] as String?,
       unit: json['unit'] as String?,
+      notes: json['notes'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -187,6 +197,7 @@ class InvoiceItem extends Equatable {
         discountPercentage,
         category,
         unit,
+        notes,
         metadata,
       ];
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../names/universal_name_service.dart';
-import '../../core/web3refi_base.dart';
+import 'package:web3refi/src/names/universal_name_service.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
 
 /// Auto-resolving address input field with name service support
 ///
@@ -70,7 +70,7 @@ class AddressInputField extends StatefulWidget {
   final TextEditingController? controller;
 
   const AddressInputField({
-    Key? key,
+    super.key,
     this.onAddressResolved,
     this.onChanged,
     this.initialValue,
@@ -84,7 +84,7 @@ class AddressInputField extends StatefulWidget {
     this.decoration,
     this.style,
     this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<AddressInputField> createState() => _AddressInputFieldState();
@@ -242,7 +242,7 @@ class _AddressInputFieldState extends State<AddressInputField> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: theme.colorScheme.outline.withOpacity(0.3),

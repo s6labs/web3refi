@@ -1,14 +1,13 @@
 import 'dart:async';
-import '../transport/rpc_client.dart';
-import '../wallet/wallet_manager.dart';
-import '../core/chain.dart';
-import '../transactions/transaction.dart';
-import '../core/constants/chains.dart';
-import '../core/constants/tokens.dart';
-import '../errors/web3_exception.dart';
-import '../standards/erc20.dart';
-import 'token_helper.dart';
-import '../standards/abi_codec.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/transactions/transaction.dart';
+import 'package:web3refi/src/core/constants/tokens.dart';
+import 'package:web3refi/src/errors/web3_exception.dart';
+import 'package:web3refi/src/standards/erc20.dart';
+import 'package:web3refi/src/defi/token_helper.dart';
+import 'package:web3refi/src/abi/abi_coder.dart';
 
 /// Advanced token operations for DeFi interactions.
 ///
@@ -334,7 +333,7 @@ class TokenOperations {
     }
 
     // WETH deposit() function
-    final data = AbiCodec.encodeFunctionCall('deposit()', []);
+    final data = AbiCoder.encodeFunctionCall('deposit()', []);
 
     return walletManager.sendTransaction(
       to: wrappedAddress,
@@ -372,9 +371,9 @@ class TokenOperations {
     }
 
     // WETH withdraw(uint256) function
-    final data = AbiCodec.encodeFunctionCall(
+    final data = AbiCoder.encodeFunctionCall(
       'withdraw(uint256)',
-      [AbiCodec.encodeUint256(parsedAmount)],
+      [AbiCoder.encodeUint256(parsedAmount)],
     );
 
     return walletManager.sendTransaction(
@@ -644,8 +643,7 @@ class BatchTransferResult {
   const BatchTransferResult({
     required this.recipient,
     required this.amount,
-    this.txHash,
-    required this.success,
+    required this.success, this.txHash,
     this.error,
   });
 }
@@ -672,10 +670,8 @@ class MultiTokenTransferResult {
 
   const MultiTokenTransferResult({
     required this.tokenAddress,
-    this.symbol,
-    required this.amount,
+    required this.amount, required this.success, this.symbol,
     this.txHash,
-    required this.success,
     this.error,
   });
 }

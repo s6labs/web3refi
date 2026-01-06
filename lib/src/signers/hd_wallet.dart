@@ -6,9 +6,9 @@ import 'package:pointycastle/digests/sha512.dart';
 import 'package:pointycastle/macs/hmac.dart';
 import 'package:pointycastle/key_derivators/pbkdf2.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import '../crypto/secp256k1.dart';
-import '../crypto/address.dart';
-import '../crypto/signature.dart';
+import 'package:web3refi/src/crypto/secp256k1.dart';
+import 'package:web3refi/src/crypto/address.dart';
+import 'package:web3refi/src/crypto/signature.dart';
 
 /// Hierarchical Deterministic (HD) wallet implementation.
 ///
@@ -62,7 +62,7 @@ class HDWallet {
     // Salt = "mnemonic" + passphrase
     final mnemonicBytes = Uint8List.fromList(utf8.encode(mnemonic.trim()));
     final salt = Uint8List.fromList(
-      utf8.encode('mnemonic${passphrase}'),
+      utf8.encode('mnemonic$passphrase'),
     );
 
     // PBKDF2 with 2048 iterations, 64-byte output

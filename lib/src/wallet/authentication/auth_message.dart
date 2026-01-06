@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-import '../../core/chain.dart';
+import 'package:web3refi/src/core/chain.dart';
 
 /// Universal authentication message for "Sign-In with Wallet" flows.
 ///

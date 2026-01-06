@@ -1,4 +1,25 @@
-import 'web3_exception.dart';
+import 'package:web3refi/src/errors/web3_exception.dart';
+
+/// Stage of the transaction lifecycle where an error occurred.
+enum TransactionStage {
+  /// Input validation before transaction creation.
+  validation,
+
+  /// Transaction preparation (gas estimation, nonce lookup).
+  preparation,
+
+  /// User signing the transaction in wallet.
+  signing,
+
+  /// Broadcasting transaction to the network.
+  broadcast,
+
+  /// Waiting for transaction confirmation.
+  confirmation,
+
+  /// Processing the transaction receipt.
+  receipt,
+}
 
 /// Exception for transaction-related errors.
 ///
@@ -371,4 +392,139 @@ class TransactionException extends Web3Exception {
   /// Transaction signing failed.
   factory TransactionException.signingFailed({String? reason, Object? cause}) {
     return TransactionException(
-      message: reason ?? 'Faile
+      message: reason ?? 'Failed to sign transaction',
+      code: 'signing_failed',
+      severity: ErrorSeverity.error,
+      stage: TransactionStage.signing,
+      cause: cause,
+    );
+  }
+
+  /// Wallet not connected for signing.
+  factory TransactionException.walletNotConnected() {
+    return const TransactionException(
+      message: 'No wallet connected. Please connect a wallet to sign transactions.',
+      code: 'wallet_not_connected',
+      severity: ErrorSeverity.error,
+      stage: TransactionStage.signing,
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // BROADCAST ERRORS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /// Transaction broadcast failed.
+  factory TransactionException.broadcastFailed({String? reason, Object? cause}) {
+    return TransactionException(
+      message: reason ?? 'Failed to broadcast transaction to the network',
+      code: 'broadcast_failed',
+      severity: ErrorSeverity.error,
+      stage: TransactionStage.broadcast,
+      cause: cause,
+    );
+  }
+
+  /// Transaction already known by the network.
+  factory TransactionException.alreadyKnown({String? txHash}) {
+    return TransactionException(
+      message: 'Transaction already submitted to the network',
+      code: 'already_known',
+      severity: ErrorSeverity.warning,
+      stage: TransactionStage.broadcast,
+      txHash: txHash,
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // CONFIRMATION ERRORS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /// Transaction timed out waiting for confirmation.
+  factory TransactionException.timeout({
+    String? txHash,
+    Duration? waitTime,
+  }) {
+    return TransactionException(
+      message: 'Transaction timed out waiting for confirmation',
+      code: 'timeout',
+      severity: ErrorSeverity.error,
+      stage: TransactionStage.confirmation,
+      txHash: txHash,
+      context: {
+        if (waitTime != null) 'waitTime': waitTime.inSeconds,
+      },
+    );
+  }
+
+  /// Transaction was dropped from mempool.
+  factory TransactionException.dropped({String? txHash, String? reason}) {
+    return TransactionException(
+      message: reason ?? 'Transaction was dropped from the mempool',
+      code: 'dropped',
+      severity: ErrorSeverity.error,
+      stage: TransactionStage.confirmation,
+      txHash: txHash,
+    );
+  }
+
+  /// Transaction reverted on-chain.
+  factory TransactionException.reverted({
+    String? txHash,
+    String? reason,
+    BigInt? gasUsed,
+  }) {
+    return TransactionException(
+      message: reason ?? 'Transaction reverted',
+      code: 'reverted',
+      severity: ErrorSeverity.error,
+      stage: TransactionStage.receipt,
+      txHash: txHash,
+      gasUsed: gasUsed,
+    );
+  }
+
+  /// Transaction failed with execution error.
+  factory TransactionException.executionFailed({
+    String? txHash,
+    String? reason,
+    Object? cause,
+  }) {
+    return TransactionException(
+      message: reason ?? 'Transaction execution failed',
+      code: 'execution_failed',
+      severity: ErrorSeverity.error,
+      stage: TransactionStage.receipt,
+      txHash: txHash,
+      cause: cause,
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // UTILITY METHODS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  @override
+  String toUserMessage() {
+    switch (code) {
+      case 'insufficient_balance':
+        return 'You don\'t have enough tokens for this transaction.';
+      case 'insufficient_gas':
+        return 'You don\'t have enough funds to pay for transaction fees.';
+      case 'user_rejected':
+        return 'Transaction was cancelled.';
+      case 'signing_failed':
+        return 'Unable to sign the transaction. Please try again.';
+      case 'timeout':
+        return 'Transaction is taking longer than expected. Please check your wallet.';
+      case 'reverted':
+        return 'Transaction failed. The operation could not be completed.';
+      case 'nonce_too_low':
+        return 'A transaction with this ID was already processed.';
+      case 'gas_price_too_low':
+        return 'Transaction fees are too low. The transaction may not be processed.';
+      default:
+        return message;
+    }
+  }
+}

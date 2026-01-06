@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../core/chain.dart';
-import '../core/web3refi_config.dart';
-import '../errors/web3_exception.dart';
-import 'wallet_abstraction.dart';
+import 'package:reown_appkit/reown_appkit.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/core/web3refi_config.dart';
+import 'package:web3refi/src/errors/wallet_exception.dart';
+import 'package:web3refi/src/errors/transaction_exception.dart';
+import 'package:web3refi/src/wallet/wallet_abstraction.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // WALLET MANAGER
@@ -15,19 +18,30 @@ import 'wallet_abstraction.dart';
 /// Central manager for all wallet operations.
 ///
 /// Handles:
-/// - Wallet connections via WalletConnect v2
+/// - Wallet connections via WalletConnect v2 (if projectId provided)
+/// - Direct wallet integration (private key, injected providers)
 /// - Session persistence across app restarts
 /// - Multi-wallet profile management
 /// - Transaction signing and sending
 /// - Chain switching
 ///
-/// Example:
+/// ## Standalone Mode (No Reown/WalletConnect)
 /// ```dart
 /// final manager = WalletManager(
-///   projectId: 'YOUR_PROJECT_ID',
+///   chains: [Chains.ethereum, Chains.polygon],
+///   // No projectId - uses direct wallet integration
+/// );
+/// ```
+///
+/// ## With WalletConnect
+/// ```dart
+/// final manager = WalletManager(
+///   projectId: 'YOUR_PROJECT_ID', // Optional - enables WalletConnect
 ///   chains: [Chains.ethereum, Chains.polygon],
 /// );
+/// ```
 ///
+/// ```dart
 /// await manager.initialize();
 /// await manager.connect();
 ///
@@ -43,8 +57,11 @@ class WalletManager extends ChangeNotifier {
   // CONFIGURATION
   // ══════════════════════════════════════════════════════════════════════════
 
-  /// WalletConnect Cloud Project ID.
-  final String projectId;
+  /// WalletConnect/Reown Cloud Project ID.
+  ///
+  /// Optional - if not provided, WalletConnect features will be disabled
+  /// and the SDK will use direct wallet integration only.
+  final String? projectId;
 
   /// Application metadata for WalletConnect.
   final AppMetadata? appMetadata;
@@ -64,6 +81,12 @@ class WalletManager extends ChangeNotifier {
   // ══════════════════════════════════════════════════════════════════════════
   // PRIVATE STATE
   // ══════════════════════════════════════════════════════════════════════════
+
+  /// Reown AppKit instance for WalletConnect v2.
+  ReownAppKit? _appKit;
+
+  /// Connect response completer for async connection handling.
+  Completer<ConnectResponse>? _connectCompleter;
 
   /// Secure storage for session persistence.
   final FlutterSecureStorage _secureStorage;
@@ -94,7 +117,7 @@ class WalletManager extends ChangeNotifier {
       StreamController<WalletEvent>.broadcast();
 
   /// Registered wallet adapters.
-  final Map<String, Web3Wallet> _walletAdapters = {};
+  final Map<String, Web3WalletAdapter> _walletAdapters = {};
 
   /// Whether the manager has been initialized.
   bool _isInitialized = false;
@@ -104,8 +127,8 @@ class WalletManager extends ChangeNotifier {
   // ══════════════════════════════════════════════════════════════════════════
 
   WalletManager({
-    required this.projectId,
     required this.chains,
+    this.projectId,
     Chain? defaultChain,
     this.appMetadata,
     this.enableLogging = false,
@@ -116,6 +139,9 @@ class WalletManager extends ChangeNotifier {
           aOptions: AndroidOptions(encryptedSharedPreferences: true),
           iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
         );
+
+  /// Whether WalletConnect is available (projectId configured).
+  bool get hasWalletConnect => projectId != null && projectId!.isNotEmpty;
 
   // ══════════════════════════════════════════════════════════════════════════
   // GETTERS
@@ -164,10 +190,9 @@ class WalletManager extends ChangeNotifier {
 
   /// Available wallets for the current platform.
   List<WalletInfo> get availableWallets {
-    return WalletRegistry.all
-        .where((w) => chains.any((c) => w.supportsChain(c.chainId)))
-        .toList()
-      ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+    return StaticWalletRegistry.all
+        .where((w) => chains.any((c) => w.supportedChains.contains(c.chainId.toString())))
+        .toList();
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -207,6 +232,12 @@ class WalletManager extends ChangeNotifier {
   }
 
   Future<void> _initializeWalletConnect() async {
+    // Register static wallet info for deep linking support
+    for (final wallet in StaticWalletRegistry.all) {
+      WalletRegistry.registerWalletInfo(wallet);
+    }
+    _log('Registered ${StaticWalletRegistry.all.length} static wallets');
+
     // In production, initialize WalletConnect SDK:
     //
     // _wcClient = await Web3Wallet.createInstance(
@@ -261,7 +292,7 @@ class WalletManager extends ChangeNotifier {
   /// - [WalletException.userRejected] if user cancels
   /// - [WalletException.connectionTimeout] if timeout exceeded
   /// - [WalletException.walletNotInstalled] if wallet app not found
-  Future<WalletConnectionResult> connect({
+  Future<WalletManagerConnectionResult> connect({
     Chain? preferredChain,
     String? walletId,
   }) async {
@@ -314,11 +345,11 @@ class WalletManager extends ChangeNotifier {
   }
 
   /// Connect to a specific wallet by ID.
-  Future<WalletConnectionResult> connectWallet({
+  Future<WalletManagerConnectionResult> connectWallet({
     required String walletId,
     Chain? preferredChain,
   }) async {
-    final wallet = WalletRegistry.byId(walletId);
+    final wallet = StaticWalletRegistry.byId(walletId);
     if (wallet == null) {
       throw WalletException(
         message: 'Unknown wallet: $walletId',
@@ -877,7 +908,7 @@ class WalletManager extends ChangeNotifier {
   }
 
   /// Register a custom wallet adapter.
-  void registerWalletAdapter(Web3Wallet adapter) {
+  void registerWalletAdapter(Web3WalletAdapter adapter) {
     _walletAdapters[adapter.info.id] = adapter;
     _log('Registered wallet adapter: ${adapter.info.id}');
   }
@@ -925,6 +956,7 @@ class WalletManager extends ChangeNotifier {
   /// Dispose of resources.
   ///
   /// Call this when the wallet manager is no longer needed.
+  @override
   Future<void> dispose() async {
     _log('Disposing WalletManager...');
 
@@ -1003,4 +1035,176 @@ class LinkedWallet extends Equatable {
       label: json['label'] as String?,
     );
   }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// WALLET EVENTS
+// ════════════════════════════════════════════════════════════════════════════
+
+/// Base class for wallet events.
+abstract class WalletEvent {
+  const WalletEvent();
+}
+
+/// Event emitted when wallet connects successfully.
+class WalletConnectedEvent extends WalletEvent {
+  /// The connection result.
+  final WalletManagerConnectionResult result;
+
+  const WalletConnectedEvent(this.result);
+}
+
+/// Event emitted when wallet disconnects.
+class WalletDisconnectedEvent extends WalletEvent {
+  const WalletDisconnectedEvent();
+}
+
+/// Event emitted when an error occurs.
+class WalletErrorEvent extends WalletEvent {
+  /// Error message.
+  final String message;
+
+  /// Error code, if available.
+  final String? code;
+
+  const WalletErrorEvent(this.message, [this.code]);
+}
+
+/// Event emitted when chain changes.
+class ChainChangedEvent extends WalletEvent {
+  /// New chain ID.
+  final int chainId;
+
+  const ChainChangedEvent(this.chainId);
+}
+
+/// Event emitted when account changes.
+class AccountChangedEvent extends WalletEvent {
+  /// New account address.
+  final String address;
+
+  const AccountChangedEvent(this.address);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// WALLET MANAGER CONNECTION RESULT
+// ════════════════════════════════════════════════════════════════════════════
+
+/// Result of a successful WalletManager connection (int chainId version).
+class WalletManagerConnectionResult {
+  /// The connected wallet address.
+  final String address;
+
+  /// The chain ID the wallet is connected to (as int).
+  final int chainId;
+
+  /// Session identifier for maintaining connection.
+  final String? sessionId;
+
+  /// Additional metadata from the wallet.
+  final Map<String, dynamic> metadata;
+
+  const WalletManagerConnectionResult({
+    required this.address,
+    required this.chainId,
+    this.sessionId,
+    this.metadata = const {},
+  });
+
+  @override
+  String toString() => 'WalletManagerConnectionResult($address on chain $chainId)';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// STATIC WALLET REGISTRY
+// ════════════════════════════════════════════════════════════════════════════
+
+/// Static registry of known wallet information.
+///
+/// Provides predefined wallet metadata for common wallets.
+class StaticWalletRegistry {
+  StaticWalletRegistry._();
+
+  /// All known wallets.
+  static final List<WalletInfo> all = [
+    _metamask,
+    _coinbaseWallet,
+    _trustWallet,
+    _rainbow,
+    _phantom,
+  ];
+
+  /// Get wallet info by ID.
+  static WalletInfo? byId(String id) {
+    try {
+      return all.firstWhere((w) => w.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// MetaMask wallet info.
+  static final WalletInfo _metamask = WalletInfo(
+    id: 'metamask',
+    name: 'MetaMask',
+    description: 'The most popular Ethereum wallet',
+    iconPath: 'assets/wallets/metamask.png',
+    blockchainType: BlockchainType.evm,
+    supportedChains: ['1', '137', '42161', '10', '56', '43114', '8453'],
+    deepLinkScheme: 'metamask://',
+    appStoreUrl: 'https://apps.apple.com/app/metamask/id1438144202',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
+  );
+
+  /// Coinbase Wallet info.
+  static final WalletInfo _coinbaseWallet = WalletInfo(
+    id: 'coinbase',
+    name: 'Coinbase Wallet',
+    description: 'Your key to the world of crypto',
+    iconPath: 'assets/wallets/coinbase.png',
+    blockchainType: BlockchainType.evm,
+    supportedChains: ['1', '137', '42161', '10', '56', '43114', '8453'],
+    deepLinkScheme: 'cbwallet://',
+    appStoreUrl: 'https://apps.apple.com/app/coinbase-wallet/id1278383455',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=org.toshi',
+  );
+
+  /// Trust Wallet info.
+  static final WalletInfo _trustWallet = WalletInfo(
+    id: 'trust',
+    name: 'Trust Wallet',
+    description: 'The most trusted & secure crypto wallet',
+    iconPath: 'assets/wallets/trust.png',
+    blockchainType: BlockchainType.evm,
+    supportedChains: ['1', '137', '42161', '10', '56', '43114'],
+    deepLinkScheme: 'trust://',
+    appStoreUrl: 'https://apps.apple.com/app/trust-crypto-bitcoin-wallet/id1288339409',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.wallet.crypto.trustapp',
+  );
+
+  /// Rainbow wallet info.
+  static final WalletInfo _rainbow = WalletInfo(
+    id: 'rainbow',
+    name: 'Rainbow',
+    description: 'The fun, simple, & secure Ethereum wallet',
+    iconPath: 'assets/wallets/rainbow.png',
+    blockchainType: BlockchainType.evm,
+    supportedChains: ['1', '137', '42161', '10', '8453'],
+    deepLinkScheme: 'rainbow://',
+    appStoreUrl: 'https://apps.apple.com/app/rainbow-ethereum-wallet/id1457119021',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=me.rainbow',
+  );
+
+  /// Phantom wallet info.
+  static final WalletInfo _phantom = WalletInfo(
+    id: 'phantom',
+    name: 'Phantom',
+    description: 'A friendly Solana & Ethereum wallet',
+    iconPath: 'assets/wallets/phantom.png',
+    blockchainType: BlockchainType.solana,
+    supportedChains: ['solana:mainnet', '1', '137'],
+    deepLinkScheme: 'phantom://',
+    appStoreUrl: 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=app.phantom',
+  );
 }

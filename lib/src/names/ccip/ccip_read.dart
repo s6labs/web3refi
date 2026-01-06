@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import '../../abi/abi_coder.dart';
-import '../../crypto/keccak.dart';
+import 'package:web3refi/src/abi/abi_coder.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
 
 /// CCIP-Read (EIP-3668) implementation for off-chain name resolution
 ///
@@ -38,7 +38,7 @@ class CCIPRead {
   final Duration _timeout;
 
   /// Error selector for OffchainLookup (0x556f1830)
-  static final offchainLookupSelector = '0x556f1830';
+  static const offchainLookupSelector = '0x556f1830';
 
   CCIPRead({
     http.Client? httpClient,
@@ -261,7 +261,7 @@ class CCIPReadClient {
     int redirects = 0,
   }) async {
     if (redirects >= _maxRedirects) {
-      throw Exception('Maximum CCIP-Read redirects (${ _maxRedirects}) exceeded');
+      throw Exception('Maximum CCIP-Read redirects ($_maxRedirects) exceeded');
     }
 
     try {

@@ -1,5 +1,5 @@
 import 'dart:async';
-import '../registry/registration_controller.dart';
+import 'package:web3refi/src/names/registry/registration_controller.dart';
 
 /// Expiration tracking and notification system for owned names
 ///

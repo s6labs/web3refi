@@ -364,7 +364,7 @@ void main() {
           );
         });
         
-        final chainWithBackup = Chain(
+        const chainWithBackup = Chain(
           chainId: 1,
           name: 'Test',
           rpcUrl: 'https://primary.test',

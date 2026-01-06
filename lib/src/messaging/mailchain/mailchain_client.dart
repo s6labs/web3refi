@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import '../../wallet/wallet_manager.dart';
-import '../../errors/web3_exception.dart';
-import 'mailchain_inbox.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/errors/web3_exception.dart';
+import 'package:web3refi/src/errors/messaging_exception.dart';
+import 'package:web3refi/src/messaging/mailchain/mailchain_inbox.dart';
 
 /// Mailchain client for blockchain email.
 ///
@@ -581,6 +582,7 @@ Timestamp: $timestamp
   }
 
   /// Clean up resources.
+  @override
   Future<void> dispose() async {
     _accessToken = null;
     _isAuthenticated = false;
@@ -608,9 +610,8 @@ class MailchainSendResult {
 
   const MailchainSendResult({
     required this.success,
-    this.messageId,
+    required this.timestamp, this.messageId,
     this.error,
-    required this.timestamp,
   });
 
   @override

@@ -305,7 +305,7 @@ class AbiEncoder {
 
   /// Encodes a boolean to 32 bytes.
   static String encodeBool(bool value) {
-    return value ? '0'.padLeft(63, '0') + '1' : '0'.padLeft(64, '0');
+    return value ? '${'0'.padLeft(63, '0')}1' : '0'.padLeft(64, '0');
   }
 
   /// Encodes bytes32 (fixed-size).

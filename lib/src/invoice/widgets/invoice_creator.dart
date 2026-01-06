@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../core/invoice.dart';
-import '../core/invoice_item.dart';
-import '../core/payment_info.dart';
-import '../core/invoice_status.dart';
-import '../manager/invoice_manager.dart';
-import '../manager/invoice_calculator.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_item.dart';
+import 'package:web3refi/src/invoice/core/payment_info.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/invoice/manager/invoice_manager.dart';
+import 'package:web3refi/src/invoice/manager/invoice_calculator.dart';
 
 /// Multi-step invoice creation widget
 class InvoiceCreator extends StatefulWidget {
@@ -15,12 +15,12 @@ class InvoiceCreator extends StatefulWidget {
   final Function(String)? onError;
 
   const InvoiceCreator({
-    Key? key,
+    super.key,
     required this.invoiceManager,
     required this.fromAddress,
     this.onInvoiceCreated,
     this.onError,
-  }) : super(key: key);
+  });
 
   @override
   State<InvoiceCreator> createState() => _InvoiceCreatorState();
@@ -181,7 +181,7 @@ class _InvoiceCreatorState extends State<InvoiceCreator> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _selectedCurrency,
+          initialValue: _selectedCurrency,
           decoration: const InputDecoration(labelText: 'Currency'),
           items: ['USDC', 'USDT', 'DAI', 'ETH', 'MATIC']
               .map((currency) => DropdownMenuItem(
@@ -250,7 +250,7 @@ class _InvoiceCreatorState extends State<InvoiceCreator> {
                 ),
               ),
             );
-          }).toList(),
+          }),
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: _addLineItem,
@@ -440,7 +440,7 @@ class _InvoiceCreatorState extends State<InvoiceCreator> {
           Padding(
             padding: const EdgeInsets.only(left: 16, top: 8),
             child: DropdownButtonFormField<RecurringFrequency>(
-              value: _recurringFrequency,
+              initialValue: _recurringFrequency,
               decoration: const InputDecoration(labelText: 'Frequency'),
               items: RecurringFrequency.values
                   .map((freq) => DropdownMenuItem(

@@ -29,7 +29,7 @@ void main() {
 }
 
 class Phase4WidgetsApp extends StatelessWidget {
-  const Phase4WidgetsApp({Key? key}) : super(key: key);
+  const Phase4WidgetsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class Phase4WidgetsApp extends StatelessWidget {
 }
 
 class ExamplesHomeScreen extends StatelessWidget {
-  const ExamplesHomeScreen({Key? key}) : super(key: key);
+  const ExamplesHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class ExamplesHomeScreen extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => NameManagementScreen(
+                builder: (context) => const NameManagementScreen(
                   registryAddress: '0x...', // Your registry address
                   resolverAddress: '0x...', // Your resolver address
                 ),
@@ -142,7 +142,7 @@ class ExamplesHomeScreen extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════════════════════
 
 class AddressInputExample extends StatefulWidget {
-  const AddressInputExample({Key? key}) : super(key: key);
+  const AddressInputExample({super.key});
 
   @override
   State<AddressInputExample> createState() => _AddressInputExampleState();
@@ -235,7 +235,7 @@ class _AddressInputExampleState extends State<AddressInputExample> {
 // ══════════════════════════════════════════════════════════════════════════════
 
 class NameDisplayExample extends StatelessWidget {
-  const NameDisplayExample({Key? key}) : super(key: key);
+  const NameDisplayExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +333,7 @@ class NameDisplayExample extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════════════════════
 
 class NameRegistrationExample extends StatefulWidget {
-  const NameRegistrationExample({Key? key}) : super(key: key);
+  const NameRegistrationExample({super.key});
 
   @override
   State<NameRegistrationExample> createState() =>
@@ -422,7 +422,7 @@ class _NameRegistrationExampleState extends State<NameRegistrationExample> {
 // ══════════════════════════════════════════════════════════════════════════════
 
 class SendTokensExample extends StatefulWidget {
-  const SendTokensExample({Key? key}) : super(key: key);
+  const SendTokensExample({super.key});
 
   @override
   State<SendTokensExample> createState() => _SendTokensExampleState();
@@ -547,9 +547,9 @@ class UserProfileExample extends StatelessWidget {
   final String userAddress;
 
   const UserProfileExample({
-    Key? key,
+    super.key,
     required this.userAddress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

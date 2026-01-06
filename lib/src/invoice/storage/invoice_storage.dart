@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../core/invoice.dart';
-import '../core/invoice_status.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
 
 /// Local storage for invoices
 class InvoiceStorage {

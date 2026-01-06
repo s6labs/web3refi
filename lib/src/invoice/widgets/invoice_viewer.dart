@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../core/invoice.dart';
-import '../core/invoice_status.dart';
-import '../manager/invoice_calculator.dart';
-import '../manager/invoice_manager.dart';
-import '../payment/invoice_payment_handler.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_item.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/invoice/core/payment_info.dart';
+import 'package:web3refi/src/invoice/manager/invoice_calculator.dart';
+import 'package:web3refi/src/invoice/manager/invoice_manager.dart';
+import 'package:web3refi/src/invoice/payment/invoice_payment_handler.dart';
 
 /// Display invoice with pay button
 class InvoiceViewer extends StatefulWidget {
@@ -16,14 +18,13 @@ class InvoiceViewer extends StatefulWidget {
   final bool showPayButton;
 
   const InvoiceViewer({
-    Key? key,
-    required this.invoice,
+    required this.invoice, super.key,
     this.invoiceManager,
     this.paymentHandler,
     this.currentUserAddress,
     this.onPaymentComplete,
     this.showPayButton = true,
-  }) : super(key: key);
+  });
 
   @override
   State<InvoiceViewer> createState() => _InvoiceViewerState();
@@ -326,10 +327,10 @@ class _InvoiceViewerState extends State<InvoiceViewer> {
     return Column(
       children: [
         _buildTotalRow('Subtotal', widget.invoice.subtotal),
-        if (widget.invoice.taxAmount != null && widget.invoice.taxAmount! > BigInt.zero)
+        if (widget.invoice.taxAmount > BigInt.zero)
           _buildTotalRow(
             'Tax (${((widget.invoice.taxRate ?? 0) * 100).toStringAsFixed(1)}%)',
-            widget.invoice.taxAmount!,
+            widget.invoice.taxAmount,
           ),
         if (widget.invoice.discount != null && widget.invoice.discount! > BigInt.zero)
           _buildTotalRow('Discount', -widget.invoice.discount!, color: Colors.green),
@@ -637,7 +638,7 @@ class _PaymentOptionsDialogState extends State<_PaymentOptionsDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           DropdownButtonFormField<String>(
-            value: _selectedToken,
+            initialValue: _selectedToken,
             decoration: const InputDecoration(labelText: 'Token'),
             items: ['USDC', 'USDT', 'DAI', 'ETH']
                 .map((token) => DropdownMenuItem(
@@ -649,7 +650,7 @@ class _PaymentOptionsDialogState extends State<_PaymentOptionsDialog> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<int>(
-            value: _selectedChainId,
+            initialValue: _selectedChainId,
             decoration: const InputDecoration(labelText: 'Network'),
             items: const [
               DropdownMenuItem(value: 1, child: Text('Ethereum')),

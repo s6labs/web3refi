@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import '../crypto/keccak.dart';
-import '../crypto/signature.dart';
-import '../crypto/address.dart';
-import '../signers/hd_wallet.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
+import 'package:web3refi/src/crypto/signature.dart';
+import 'package:web3refi/src/crypto/address.dart';
+import 'package:web3refi/src/signers/hd_wallet.dart';
 
 /// Personal sign implementation (EIP-191).
 ///

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'mailchain_client.dart';
+import 'package:web3refi/src/messaging/mailchain/mailchain_client.dart';
 
 /// Manages Mailchain inbox, messages, and folders.
 ///

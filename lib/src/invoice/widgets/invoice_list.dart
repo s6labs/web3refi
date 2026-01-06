@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../core/invoice.dart';
-import '../core/invoice_status.dart';
-import '../manager/invoice_manager.dart';
-import '../manager/invoice_calculator.dart';
-import 'invoice_viewer.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/invoice/manager/invoice_manager.dart';
+import 'package:web3refi/src/invoice/manager/invoice_calculator.dart';
+import 'package:web3refi/src/invoice/widgets/invoice_viewer.dart';
 
 /// Filterable list of invoices with search and sorting
 class InvoiceList extends StatefulWidget {
@@ -14,13 +14,12 @@ class InvoiceList extends StatefulWidget {
   final bool showCreateButton;
 
   const InvoiceList({
-    Key? key,
-    required this.invoiceManager,
+    required this.invoiceManager, super.key,
     this.userAddress,
     this.mode = InvoiceListMode.all,
     this.onInvoiceTap,
     this.showCreateButton = true,
-  }) : super(key: key);
+  });
 
   @override
   State<InvoiceList> createState() => _InvoiceListState();
@@ -503,7 +502,7 @@ class _InvoiceListState extends State<InvoiceList> {
                   _applyFilters();
                 },
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

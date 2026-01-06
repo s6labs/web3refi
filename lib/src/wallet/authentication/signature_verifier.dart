@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:pointycastle/export.dart';
-import '../../core/chain.dart';
-import '../wallet_abstraction.dart';
-import 'auth_message.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/wallet/wallet_abstraction.dart';
+import 'package:web3refi/src/wallet/authentication/auth_message.dart';
 
 /// Verifies signatures from different blockchain types.
 ///
@@ -246,7 +246,7 @@ class SignatureVerifier {
 
   Uint8List _bitcoinSignedMessageHash(String message) {
     final messageBytes = utf8.encode(message);
-    final prefix = '\x18Bitcoin Signed Message:\n';
+    const prefix = '\x18Bitcoin Signed Message:\n';
     final prefixBytes = utf8.encode(prefix);
 
     // Varint encode message length

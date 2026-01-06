@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../core/invoice.dart';
-import '../core/payment_info.dart';
-import '../core/invoice_status.dart';
-import '../../standards/erc20.dart';
-import '../../transport/rpc_client.dart';
-import '../../wallet/wallet_manager.dart';
-import '../../core/chain.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/payment_info.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/standards/erc20.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/core/chain.dart';
 
 /// Handles multi-chain invoice payments
 class InvoicePaymentHandler extends ChangeNotifier {

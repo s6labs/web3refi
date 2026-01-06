@@ -1,4 +1,4 @@
-import 'web3_exception.dart';
+import 'package:web3refi/src/errors/web3_exception.dart';
 
 /// Exception for wallet connection, signing, and session errors.
 ///

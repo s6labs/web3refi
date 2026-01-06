@@ -1,5 +1,5 @@
-import '../core/invoice.dart';
-import '../manager/invoice_calculator.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/manager/invoice_calculator.dart';
 
 /// Formats invoices for different messaging channels
 class InvoiceFormatter {
@@ -50,7 +50,7 @@ class InvoiceFormatter {
         decimals: 6,
         symbol: invoice.currency,
       );
-      buffer.writeln('${item.description}');
+      buffer.writeln(item.description);
       buffer.writeln('  ${item.quantity} × $unitPrice = $total');
     }
     buffer.writeln();

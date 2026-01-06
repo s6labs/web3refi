@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
-import '../../core/chain.dart';
-import '../../errors/web3_exception.dart';
-import '../wallet_abstraction.dart';
-import '../authentication/auth_message.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/errors/wallet_exception.dart';
+import 'package:web3refi/src/wallet/wallet_abstraction.dart';
+import 'package:web3refi/src/wallet/authentication/auth_message.dart';
 
 /// Adapter for Bitcoin wallets.
 ///
@@ -85,6 +85,9 @@ class BitcoinWalletAdapter implements Web3WalletAdapter {
 
   @override
   String? get chainId => _chainId;
+
+  @override
+  bool get isConnected => connectionState == WalletConnectionState.connected;
 
   /// The type of Bitcoin address connected.
   AddressType get addressType => _addressType;
@@ -385,11 +388,9 @@ class SparrowAdapter extends BitcoinWalletAdapter {
 /// Generic Bitcoin wallet adapter using BIP-21 URIs.
 class GenericBitcoinAdapter extends BitcoinWalletAdapter {
   GenericBitcoinAdapter({
-    required String walletId,
-    required String walletName,
+    required super.walletId,
+    required super.walletName,
   }) : super(
-          walletId: walletId,
-          walletName: walletName,
           deepLinkScheme: 'bitcoin:',
         );
 }

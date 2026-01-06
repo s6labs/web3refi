@@ -1,9 +1,7 @@
-import 'dart:convert';
-import '../transport/rpc_client.dart';
-import 'identity.dart';
-import 'subscription.dart';
-import 'auth.dart';
-import 'webhooks.dart';
+import 'package:web3refi/src/cifi/identity.dart';
+import 'package:web3refi/src/cifi/subscription.dart';
+import 'package:web3refi/src/cifi/auth.dart';
+import 'package:web3refi/src/cifi/webhooks.dart';
 
 /// CiFi (Circularity Finance) client for unified payment and identity.
 ///
@@ -92,7 +90,7 @@ class CiFiClient {
   Future<CiFiNetwork?> getNetwork(int chainId) async {
     // Map chain IDs to CiFi payment networks
     final networks = {
-      50: CiFiNetwork(
+      50: const CiFiNetwork(
         chainId: 50,
         name: 'XDC Network',
         rpcUrl: 'https://rpc.xdcnetwork.com',
@@ -104,7 +102,7 @@ class CiFiClient {
         blockExplorer: 'https://explorer.xdcnetwork.com',
         supportedTokens: ['USDC', 'USDT', 'DAI'],
       ),
-      137: CiFiNetwork(
+      137: const CiFiNetwork(
         chainId: 137,
         name: 'Polygon',
         rpcUrl: 'https://polygon-rpc.com',
@@ -255,10 +253,8 @@ class CiFiPaymentRequest {
     required this.amount,
     required this.currency,
     required this.chainId,
-    this.description,
-    required this.createdAt,
+    required this.createdAt, required this.status, this.description,
     this.expiresAt,
-    required this.status,
   });
 
   Map<String, dynamic> toJson() => {

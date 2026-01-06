@@ -1,21 +1,20 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../core/web3refi_base.dart';
-import '../standards/erc20.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
 
 /// Displays a token balance with automatic formatting.
 ///
 /// Fetches the balance once when the widget is built.
-/// For live updates, use [LiveTokenBalance] instead.
+/// For live updates, use [LiveTokenBalanceWidget] instead.
 ///
 /// Example:
 /// ```dart
-/// TokenBalance(
+/// TokenBalanceWidget(
 ///   tokenAddress: Tokens.usdcPolygon,
 ///   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
 /// )
 /// ```
-class TokenBalance extends StatefulWidget {
+class TokenBalanceWidget extends StatefulWidget {
   /// The token contract address.
   final String tokenAddress;
 
@@ -52,9 +51,8 @@ class TokenBalance extends StatefulWidget {
   /// Custom number formatter.
   final String Function(String amount)? formatter;
 
-  const TokenBalance({
-    super.key,
-    required this.tokenAddress,
+  const TokenBalanceWidget({
+    required this.tokenAddress, super.key,
     this.ownerAddress,
     this.style,
     this.showSymbol = true,
@@ -69,10 +67,10 @@ class TokenBalance extends StatefulWidget {
   });
 
   @override
-  State<TokenBalance> createState() => _TokenBalanceState();
+  State<TokenBalanceWidget> createState() => _TokenBalanceWidgetState();
 }
 
-class _TokenBalanceState extends State<TokenBalance> {
+class _TokenBalanceWidgetState extends State<TokenBalanceWidget> {
   late Future<_BalanceData> _balanceFuture;
 
   @override
@@ -82,7 +80,7 @@ class _TokenBalanceState extends State<TokenBalance> {
   }
 
   @override
-  void didUpdateWidget(TokenBalance oldWidget) {
+  void didUpdateWidget(TokenBalanceWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.tokenAddress != widget.tokenAddress ||
         oldWidget.ownerAddress != widget.ownerAddress) {
@@ -199,13 +197,13 @@ class _TokenBalanceState extends State<TokenBalance> {
 ///
 /// Example:
 /// ```dart
-/// LiveTokenBalance(
+/// LiveTokenBalanceWidget(
 ///   tokenAddress: Tokens.usdcPolygon,
 ///   updateInterval: Duration(seconds: 10),
 ///   style: TextStyle(fontSize: 24),
 /// )
 /// ```
-class LiveTokenBalance extends StatefulWidget {
+class LiveTokenBalanceWidget extends StatefulWidget {
   /// The token contract address.
   final String tokenAddress;
 
@@ -236,9 +234,8 @@ class LiveTokenBalance extends StatefulWidget {
   /// Callback when balance changes.
   final void Function(BigInt oldBalance, BigInt newBalance)? onBalanceChanged;
 
-  const LiveTokenBalance({
-    super.key,
-    required this.tokenAddress,
+  const LiveTokenBalanceWidget({
+    required this.tokenAddress, super.key,
     this.ownerAddress,
     this.updateInterval = const Duration(seconds: 15),
     this.style,
@@ -251,10 +248,10 @@ class LiveTokenBalance extends StatefulWidget {
   });
 
   @override
-  State<LiveTokenBalance> createState() => _LiveTokenBalanceState();
+  State<LiveTokenBalanceWidget> createState() => _LiveTokenBalanceWidgetState();
 }
 
-class _LiveTokenBalanceState extends State<LiveTokenBalance>
+class _LiveTokenBalanceWidgetState extends State<LiveTokenBalanceWidget>
     with SingleTickerProviderStateMixin {
   Timer? _timer;
   _BalanceData? _currentData;
@@ -282,7 +279,7 @@ class _LiveTokenBalanceState extends State<LiveTokenBalance>
   }
 
   @override
-  void didUpdateWidget(LiveTokenBalance oldWidget) {
+  void didUpdateWidget(LiveTokenBalanceWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.tokenAddress != widget.tokenAddress ||
         oldWidget.ownerAddress != widget.ownerAddress ||
@@ -569,9 +566,7 @@ class BalanceCard extends StatelessWidget {
   final double? usdPrice;
 
   const BalanceCard({
-    super.key,
-    required this.tokenAddress,
-    required this.tokenName,
+    required this.tokenAddress, required this.tokenName, super.key,
     this.tokenIcon,
     this.onTap,
     this.showUsdValue = false,
@@ -625,7 +620,7 @@ class BalanceCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    TokenBalance(
+                    TokenBalanceWidget(
                       tokenAddress: tokenAddress,
                       style: TextStyle(
                         fontSize: 14,

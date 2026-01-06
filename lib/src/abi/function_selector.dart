@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import '../crypto/keccak.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
 
 /// Function selector calculation for Ethereum smart contracts.
 ///

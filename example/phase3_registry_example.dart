@@ -61,7 +61,7 @@ Future<void> main() async {
   );
 
   // Check if name is available
-  final nameToRegister = 'myname.xdc';
+  const nameToRegister = 'myname.xdc';
   final available = await controller.isAvailable(nameToRegister);
   print('Is $nameToRegister available? $available');
 
@@ -255,7 +255,7 @@ Future<void> main() async {
   // Deploy a separate controller contract that can register names
   // This allows you to implement custom pricing, discounts, etc.
 
-  final controllerAddress = '0xYourControllerContract...';
+  const controllerAddress = '0xYourControllerContract...';
 
   await factory.addController(
     registryAddress: deployment.registryAddress,
@@ -291,7 +291,7 @@ Future<void> main() async {
       owner: userAddress,
       duration: const Duration(days: 365),
       setRecords: {
-        'avatar': 'https://api.example.com/avatar/${username}',
+        'avatar': 'https://api.example.com/avatar/$username',
         'url': 'https://example.com/$username',
       },
     );

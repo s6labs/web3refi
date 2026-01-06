@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
-import '../core/chain.dart';
+import 'package:web3refi/src/core/chain.dart';
 
 /// Base interface that ALL wallet adapters must implement.
 ///
@@ -324,9 +323,9 @@ class TransactionData {
   /// Chain-specific metadata.
   final Map<String, dynamic> metadata;
 
-  const TransactionData({
+  TransactionData({
     required this.to,
-    this.value = BigInt.zero,
+    BigInt? value,
     this.data,
     this.gasLimit,
     this.gasPrice,
@@ -334,7 +333,7 @@ class TransactionData {
     this.maxPriorityFeePerGas,
     this.nonce,
     this.metadata = const {},
-  });
+  }) : value = value ?? BigInt.zero;
 
   /// Convert to JSON-RPC format for EVM chains.
   Map<String, String> toEvmJson(String from) {
@@ -404,14 +403,19 @@ class AuthMessageData {
 class WalletRegistry {
   final Map<String, Web3WalletAdapter> _adapters = {};
 
+  /// Static map for registered wallet info (used by WalletManager).
+  static final Map<String, WalletInfo> _staticWalletInfo = {};
+
   /// Register a wallet adapter.
   void register(Web3WalletAdapter adapter) {
     _adapters[adapter.info.id] = adapter;
+    _staticWalletInfo[adapter.info.id] = adapter.info;
   }
 
   /// Unregister a wallet adapter.
   void unregister(String walletId) {
     _adapters.remove(walletId);
+    _staticWalletInfo.remove(walletId);
   }
 
   /// Get a wallet adapter by ID.
@@ -440,5 +444,22 @@ class WalletRegistry {
       adapter.dispose();
     }
     _adapters.clear();
+    _staticWalletInfo.clear();
+  }
+
+  /// Static method to get wallet info by ID.
+  ///
+  /// Returns the wallet info if registered, null otherwise.
+  /// This is used by WalletManager for deep linking.
+  static WalletInfo? byId(String walletId) {
+    return _staticWalletInfo[walletId];
+  }
+
+  /// Register wallet info statically (without full adapter).
+  ///
+  /// Useful for registering known wallet metadata for deep linking
+  /// without requiring a full adapter implementation.
+  static void registerWalletInfo(WalletInfo info) {
+    _staticWalletInfo[info.id] = info;
   }
 }

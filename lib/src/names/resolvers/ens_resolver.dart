@@ -1,9 +1,9 @@
 import 'dart:typed_data';
-import '../../transport/rpc_client.dart';
-import '../../abi/abi_coder.dart';
-import '../name_resolver.dart';
-import '../resolution_result.dart';
-import '../utils/namehash.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/abi/abi_coder.dart';
+import 'package:web3refi/src/names/name_resolver.dart';
+import 'package:web3refi/src/names/resolution_result.dart';
+import 'package:web3refi/src/names/utils/namehash.dart';
 
 /// Ethereum Name Service (ENS) resolver.
 ///

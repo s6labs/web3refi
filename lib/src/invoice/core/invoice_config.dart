@@ -1,4 +1,4 @@
-import 'invoice_status.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
 
 /// Configuration for invoice system
 class InvoiceConfig {

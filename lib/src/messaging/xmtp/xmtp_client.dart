@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import '../../wallet/wallet_manager.dart';
-import '../../errors/web3_exception.dart';
-import 'xmtp_conversation.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/errors/web3_exception.dart';
+import 'package:web3refi/src/errors/messaging_exception.dart';
+import 'package:web3refi/src/messaging/xmtp/xmtp_conversation.dart';
 
 /// XMTP client for real-time Web3 messaging.
 ///
@@ -504,6 +505,7 @@ Timestamp: ${DateTime.now().toIso8601String()}
   }
 
   /// Clean up resources.
+  @override
   Future<void> dispose() async {
     _globalMessageStream?.close();
     for (final stream in _messageStreams.values) {

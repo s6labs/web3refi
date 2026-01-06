@@ -1,27 +1,42 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../core/invoice.dart';
-import '../core/invoice_item.dart';
-import '../core/invoice_status.dart';
-import '../core/invoice_config.dart';
-import '../core/payment_info.dart';
-import '../storage/invoice_storage.dart';
-import '../storage/ipfs_storage.dart';
-import '../storage/arweave_storage.dart';
-import 'invoice_calculator.dart';
-import 'invoice_validator.dart';
-import '../../names/universal_name_service.dart';
-import '../../wallet/wallet_manager.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_item.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/invoice/core/invoice_config.dart';
+import 'package:web3refi/src/invoice/core/payment_info.dart';
+import 'package:web3refi/src/invoice/storage/invoice_storage.dart';
+import 'package:web3refi/src/invoice/storage/ipfs_storage.dart';
+import 'package:web3refi/src/invoice/storage/arweave_storage.dart';
+import 'package:web3refi/src/invoice/manager/invoice_calculator.dart';
+import 'package:web3refi/src/invoice/manager/invoice_validator.dart';
+import 'package:web3refi/src/names/universal_name_service.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/core/feature_access.dart';
 
-/// Main invoice manager - orchestrates all invoice operations
-class InvoiceManager extends ChangeNotifier {
+/// Main invoice manager - orchestrates all invoice operations.
+///
+/// **PREMIUM FEATURE**: Requires CIFI ID (API key + secret) to use.
+///
+/// Provides comprehensive invoice management including:
+/// - Invoice creation and management
+/// - Payment tracking
+/// - IPFS/Arweave storage
+/// - Dispute handling
+///
+/// Throws [PremiumFeatureException] if CIFI ID is not configured.
+class InvoiceManager extends ChangeNotifier with FeatureGuard {
   final InvoiceConfig config;
   final InvoiceStorage storage;
   final IPFSStorage? ipfsStorage;
   final ArweaveStorage? arweaveStorage;
   final UniversalNameService? nameService;
   final WalletManager? walletManager;
+
+  /// Feature access manager for premium feature gating.
+  @override
+  final FeatureAccessManager? featureAccess;
 
   /// Active invoices cache
   final Map<String, Invoice> _invoiceCache = {};
@@ -36,6 +51,7 @@ class InvoiceManager extends ChangeNotifier {
     this.arweaveStorage,
     this.nameService,
     this.walletManager,
+    this.featureAccess,
   });
 
   /// Stream of invoice events
@@ -45,7 +61,11 @@ class InvoiceManager extends ChangeNotifier {
   // INVOICE CREATION
   // ═══════════════════════════════════════════════════════════════════════
 
-  /// Create a new invoice
+  /// Create a new invoice.
+  ///
+  /// **PREMIUM FEATURE**: Requires CIFI ID (API key + secret).
+  ///
+  /// Throws [PremiumFeatureException] if CIFI ID is not configured.
   Future<Invoice> createInvoice({
     required String to,
     required String title,
@@ -71,6 +91,9 @@ class InvoiceManager extends ChangeNotifier {
     String? brandColor,
     String? footerText,
   }) async {
+    // Check premium feature access
+    requireFeature(SdkFeature.invoiceManagement);
+
     // Get current user address
     final from = walletManager?.address ?? '';
     if (from.isEmpty) {
@@ -238,17 +261,27 @@ class InvoiceManager extends ChangeNotifier {
     return await storage.getInvoicesByStatus(status);
   }
 
-  /// Get invoices sent by user
+  /// Get invoices sent by user (uses connected wallet address)
   Future<List<Invoice>> getSentInvoices() async {
     final address = walletManager?.address;
     if (address == null) return [];
     return await storage.getInvoicesBySender(address);
   }
 
-  /// Get invoices received by user
+  /// Get invoices received by user (uses connected wallet address)
   Future<List<Invoice>> getReceivedInvoices() async {
     final address = walletManager?.address;
     if (address == null) return [];
+    return await storage.getInvoicesByRecipient(address);
+  }
+
+  /// Get invoices sent by a specific address
+  Future<List<Invoice>> getInvoicesBySender(String address) async {
+    return await storage.getInvoicesBySender(address);
+  }
+
+  /// Get invoices received by a specific address
+  Future<List<Invoice>> getInvoicesByRecipient(String address) async {
     return await storage.getInvoicesByRecipient(address);
   }
 
@@ -741,12 +774,15 @@ class InvoiceException implements Exception {
   String toString() => 'InvoiceException: $message';
 }
 
-/// Static factory for creating InvoiceManager
+/// Static factory for creating InvoiceManager.
+///
+/// **PREMIUM FEATURE**: InvoiceManager requires CIFI ID (API key + secret).
 class InvoiceManagerFactory {
   static Future<InvoiceManager> create({
     InvoiceConfig? config,
     UniversalNameService? nameService,
     WalletManager? walletManager,
+    FeatureAccessManager? featureAccess,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final storage = InvoiceStorage(prefs: prefs);
@@ -776,6 +812,7 @@ class InvoiceManagerFactory {
       arweaveStorage: arweaveStorage,
       nameService: nameService,
       walletManager: walletManager,
+      featureAccess: featureAccess,
     );
   }
 }

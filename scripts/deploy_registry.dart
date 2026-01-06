@@ -4,6 +4,7 @@
 /// ```bash
 /// dart run scripts/deploy_registry.dart --tld xdc --chain-id 50 --rpc-url https://rpc.xdc.network
 /// ```
+library;
 
 import 'dart:io';
 import 'package:web3refi/web3refi.dart';

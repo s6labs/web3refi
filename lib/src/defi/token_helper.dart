@@ -1,10 +1,10 @@
 import 'dart:async';
-import '../transport/rpc_client.dart';
-import '../wallet/wallet_manager.dart';
-import '../core/chain.dart';
-import '../core/constants/tokens.dart';
-import '../errors/web3_exception.dart';
-import '../standards/erc20.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/core/constants/tokens.dart';
+import 'package:web3refi/src/errors/web3_exception.dart';
+import 'package:web3refi/src/standards/erc20.dart';
 
 /// High-level helper for common token operations.
 ///

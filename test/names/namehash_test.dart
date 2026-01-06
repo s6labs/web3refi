@@ -64,7 +64,7 @@ void main() {
     });
 
     test('should handle reverse resolution namehash', () {
-      final addr = 'd8da6bf26964af9d7eed9e03e53415d37aa96045';
+      const addr = 'd8da6bf26964af9d7eed9e03e53415d37aa96045';
       final hash = namehashHex('$addr.addr.reverse');
       expect(hash.length, 66);
       expect(hash.startsWith('0x'), true);

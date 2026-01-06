@@ -1,6 +1,6 @@
-import '../../cifi/client.dart';
-import '../name_resolver.dart';
-import '../resolution_result.dart';
+import 'package:web3refi/src/cifi/client.dart';
+import 'package:web3refi/src/names/name_resolver.dart';
+import 'package:web3refi/src/names/resolution_result.dart';
 
 /// CiFi-based universal name resolver.
 ///

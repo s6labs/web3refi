@@ -270,11 +270,9 @@ class CiFiProfile {
     required this.userId,
     required this.primaryAddress,
     required this.primaryChainId,
-    this.email,
+    required this.createdAt, required this.updatedAt, this.email,
     this.username,
     this.metadata,
-    required this.createdAt,
-    required this.updatedAt,
   });
 
   Map<String, dynamic> toJson() => {

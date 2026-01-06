@@ -1,6 +1,6 @@
 import 'dart:typed_data';
-import 'package:pointycastle/export.dart';
-import 'signature.dart';
+import 'package:pointycastle/export.dart' hide Signature;
+import 'package:web3refi/src/crypto/signature.dart';
 
 /// secp256k1 elliptic curve cryptography for Ethereum.
 ///

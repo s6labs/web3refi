@@ -1,11 +1,11 @@
 import 'dart:typed_data';
-import '../crypto/rlp.dart';
-import '../crypto/signature.dart';
-import '../crypto/keccak.dart';
-import '../crypto/address.dart';
-import '../crypto/secp256k1.dart';
-import '../signers/hd_wallet.dart';
-import 'eip2930_tx.dart';
+import 'package:web3refi/src/crypto/rlp.dart';
+import 'package:web3refi/src/crypto/signature.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
+import 'package:web3refi/src/crypto/address.dart';
+import 'package:web3refi/src/crypto/secp256k1.dart';
+import 'package:web3refi/src/signers/hd_wallet.dart';
+import 'package:web3refi/src/transactions/eip2930_tx.dart';
 
 /// EIP-1559 transaction (Type 2).
 ///
@@ -57,9 +57,7 @@ class EIP1559Transaction {
     required this.maxPriorityFeePerGas,
     required this.maxFeePerGas,
     required this.gasLimit,
-    this.to,
-    required this.value,
-    required this.data,
+    required this.value, required this.data, this.to,
     this.accessList = const [],
     this.v,
     this.r,

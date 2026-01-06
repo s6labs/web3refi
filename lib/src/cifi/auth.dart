@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'identity.dart';
-import '../signing/siwe.dart';
+import 'package:web3refi/src/cifi/identity.dart';
+import 'package:web3refi/src/signing/siwe.dart';
 
 /// CiFi Authentication for wallet-based login.
 ///
@@ -357,10 +357,8 @@ class AuthUser {
     required this.userId,
     required this.address,
     required this.chainId,
-    this.email,
+    required this.twoFactorEnabled, required this.createdAt, this.email,
     this.username,
-    required this.twoFactorEnabled,
-    required this.createdAt,
   });
 
   Map<String, dynamic> toJson() => {

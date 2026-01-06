@@ -1,5 +1,5 @@
 import 'dart:async';
-import '../resolution_result.dart';
+import 'package:web3refi/src/names/resolution_result.dart';
 
 /// Cache entry for name resolution results
 class CacheEntry<T> {
@@ -73,7 +73,7 @@ class NameCache {
     Duration? cleanupInterval,
   }) {
     // Start periodic cleanup
-    final interval = cleanupInterval ?? Duration(minutes: 5);
+    final interval = cleanupInterval ?? const Duration(minutes: 5);
     _cleanupTimer = Timer.periodic(interval, (_) => _cleanup());
   }
 

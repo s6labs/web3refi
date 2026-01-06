@@ -3,11 +3,30 @@
 /// A comprehensive Web3 library providing:
 /// - Multi-chain DeFi operations (transfers, swaps, staking)
 /// - Universal wallet connections (EVM, Bitcoin, Solana, Hedera, Sui)
-/// - Web3 messaging (XMTP real-time chat + Mailchain email)
+/// - Web3 messaging (XMTP real-time chat + Mailchain email) [PREMIUM]
+/// - Universal Name Service (ENS, Unstoppable, etc.) [PREMIUM for non-ENS]
+/// - Invoice management [PREMIUM]
 /// - Production-ready Flutter widgets
+///
+/// ## SDK Tiers
+///
+/// ### Free Tier (Standalone)
+/// Core blockchain functionality without third-party dependencies:
+/// - RPC operations, transactions, token operations
+/// - Basic ENS resolution (.eth names only)
+/// - HD wallet generation
+/// - Cryptographic operations
+///
+/// ### Premium Tier (with CIFI ID)
+/// Full feature set with CIFI API key and secret:
+/// - XMTP & Mailchain messaging
+/// - Universal Name Service (all resolvers)
+/// - Invoice management
+/// - CiFi identity & authentication
 ///
 /// ## Quick Start
 ///
+/// ### Free Tier (Standalone)
 /// ```dart
 /// import 'package:web3refi/web3refi.dart';
 ///
@@ -15,10 +34,28 @@
 ///   WidgetsFlutterBinding.ensureInitialized();
 ///
 ///   await Web3Refi.initialize(
-///     config: Web3RefiConfig(
-///       projectId: 'YOUR_WALLETCONNECT_PROJECT_ID',
+///     config: Web3RefiConfig.standalone(
 ///       chains: [Chains.ethereum, Chains.polygon],
-///       defaultChain: Chains.polygon,
+///     ),
+///   );
+///
+///   runApp(MyApp());
+/// }
+/// ```
+///
+/// ### Premium Tier (with CIFI ID)
+/// ```dart
+/// import 'package:web3refi/web3refi.dart';
+///
+/// void main() async {
+///   WidgetsFlutterBinding.ensureInitialized();
+///
+///   await Web3Refi.initialize(
+///     config: Web3RefiConfig.premium(
+///       chains: [Chains.ethereum, Chains.polygon],
+///       cifiApiKey: 'YOUR_CIFI_API_KEY',
+///       cifiApiSecret: 'YOUR_CIFI_API_SECRET',
+///       projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Optional
 ///     ),
 ///   );
 ///
@@ -28,25 +65,45 @@
 ///
 /// ## Features
 ///
-/// ### Wallet Connection
+/// ### Wallet Connection (FREE)
 /// ```dart
 /// await Web3Refi.instance.connect();
 /// print('Connected: ${Web3Refi.instance.address}');
 /// ```
 ///
-/// ### Token Operations
+/// ### Token Operations (FREE)
 /// ```dart
 /// final usdc = Web3Refi.instance.token(Tokens.usdcPolygon);
 /// final balance = await usdc.balanceOf(address);
 /// await usdc.transfer(to: recipient, amount: amount);
 /// ```
 ///
-/// ### Messaging
+/// ### Name Resolution
+/// ```dart
+/// // ENS is FREE
+/// final addr = await Web3Refi.instance.names.resolve('vitalik.eth');
+///
+/// // Other name services require PREMIUM
+/// final addr2 = await Web3Refi.instance.names.resolve('@alice'); // Requires CIFI ID
+/// ```
+///
+/// ### Messaging (PREMIUM)
 /// ```dart
 /// await Web3Refi.instance.messaging.xmtp.sendMessage(
 ///   recipient: '0x123...',
 ///   content: 'Hello Web3!',
 /// );
+/// ```
+///
+/// ### Feature Access Check
+/// ```dart
+/// if (Web3Refi.instance.isPremium) {
+///   // Use premium features
+/// }
+///
+/// if (Web3Refi.instance.canUseFeature(SdkFeature.xmtpMessaging)) {
+///   // Messaging is available
+/// }
 /// ```
 library web3refi;
 
@@ -55,6 +112,7 @@ library web3refi;
 // ============================================================================
 export 'src/core/web3refi_base.dart';
 export 'src/core/web3refi_config.dart';
+export 'src/core/feature_access.dart';
 export 'src/core/chain.dart';
 export 'src/core/chain_config.dart';
 export 'src/core/types.dart';
@@ -98,7 +156,7 @@ export 'src/transactions/eip1559_tx.dart';
 // ============================================================================
 export 'src/signing/personal_sign.dart';
 export 'src/signing/typed_data.dart';
-export 'src/signing/siwe.dart';
+export 'src/signing/siwe.dart' hide VerificationResult;
 
 // ============================================================================
 // Token Standards
@@ -115,19 +173,21 @@ export 'src/errors/web3_exception.dart';
 export 'src/errors/wallet_exception.dart';
 export 'src/errors/rpc_exception.dart';
 export 'src/errors/transaction_exception.dart';
+export 'src/errors/messaging_exception.dart';
 
 // ============================================================================
 // Wallet
 // ============================================================================
-export 'src/wallet/wallet_manager.dart';
-export 'src/wallet/wallet_abstraction.dart';
+export 'src/wallet/wallet_manager.dart' hide LinkedWallet;
+export 'src/wallet/wallet_abstraction.dart'
+    hide WalletInfo, WalletSignature, WalletConnectionState;
 export 'src/wallet/authentication/auth_message.dart';
 export 'src/wallet/authentication/signature_verifier.dart';
 
 // ============================================================================
 // DeFi / Token Operations
 // ============================================================================
-export 'src/defi/token_operations.dart';
+export 'src/defi/token_operations.dart' hide TokenInfo;
 export 'src/defi/token_helper.dart';
 
 // ============================================================================

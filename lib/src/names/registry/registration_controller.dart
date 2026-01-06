@@ -1,9 +1,9 @@
 import 'dart:typed_data';
-import '../../transport/rpc_client.dart';
-import '../../abi/abi_coder.dart';
-import '../../signers/hd_wallet.dart';
-import '../../transactions/eip1559_tx.dart';
-import '../utils/namehash.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/abi/abi_coder.dart';
+import 'package:web3refi/src/signers/hd_wallet.dart';
+import 'package:web3refi/src/transactions/eip1559_tx.dart';
+import 'package:web3refi/src/names/utils/namehash.dart';
 
 /// Controller for name registration operations
 ///

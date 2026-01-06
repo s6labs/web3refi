@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import '../crypto/keccak.dart';
-import '../crypto/signature.dart';
-import '../abi/types/abi_types.dart';
-import '../signers/hd_wallet.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
+import 'package:web3refi/src/crypto/signature.dart';
+import 'package:web3refi/src/abi/types/abi_types.dart';
+import 'package:web3refi/src/signers/hd_wallet.dart';
 
 /// EIP-712 typed structured data signing.
 ///

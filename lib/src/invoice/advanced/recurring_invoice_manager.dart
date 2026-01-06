@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../core/invoice.dart';
-import '../core/invoice_status.dart';
-import '../manager/invoice_manager.dart';
-import '../messaging/invoice_messenger.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/invoice/manager/invoice_manager.dart';
+import 'package:web3refi/src/invoice/messaging/invoice_messenger.dart';
 
 /// Manages recurring invoices (subscriptions)
 class RecurringInvoiceManager extends ChangeNotifier {
@@ -302,7 +302,7 @@ class RecurringInvoiceManager extends ChangeNotifier {
   Future<RecurringStatistics> getTemplateStatistics(String templateId) async {
     final invoices = await getInvoicesFromTemplate(templateId);
 
-    int totalGenerated = invoices.length;
+    final int totalGenerated = invoices.length;
     int paid = 0;
     int pending = 0;
     int overdue = 0;

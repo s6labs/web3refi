@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:web3refi/web3refi.dart';
 
-import 'screens/home_screen.dart';
-import 'screens/wallet_screen.dart';
-import 'screens/tokens_screen.dart';
-import 'screens/transfer_screen.dart';
-import 'screens/messaging_screen.dart';
+import 'package:web3refi_example/screens/home_screen.dart';
+import 'package:web3refi_example/screens/wallet_screen.dart';
+import 'package:web3refi_example/screens/tokens_screen.dart';
+import 'package:web3refi_example/screens/transfer_screen.dart';
+import 'package:web3refi_example/screens/messaging_screen.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -117,12 +117,10 @@ class Web3RefiExampleApp extends StatelessWidget {
         primary: primaryColor,
         secondary: Color(0xFF22D3EE), // Cyan accent
         surface: surfaceColor,
-        background: backgroundColor,
         error: Color(0xFFEF4444),
         onPrimary: Colors.white,
         onSecondary: Colors.black,
         onSurface: Colors.white,
-        onBackground: Colors.white,
         onError: Colors.white,
       ),
       cardColor: cardColor,

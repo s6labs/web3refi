@@ -163,7 +163,7 @@ String mockDecimalsResponse(int decimals) {
 /// Creates a mock string response (for name/symbol).
 String mockStringResponse(String value) {
   final bytes = utf8.encode(value);
-  final offset = '0000000000000000000000000000000000000000000000000000000000000020';
+  const offset = '0000000000000000000000000000000000000000000000000000000000000020';
   final length = bytes.length.toRadixString(16).padLeft(64, '0');
   final data = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join().padRight(64, '0');
   return '0x$offset$length$data';

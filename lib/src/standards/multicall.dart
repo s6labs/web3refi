@@ -1,6 +1,6 @@
 import 'dart:typed_data';
-import '../transport/rpc_client.dart';
-import '../abi/abi_coder.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/abi/abi_coder.dart';
 
 /// Multicall3 contract interface.
 ///

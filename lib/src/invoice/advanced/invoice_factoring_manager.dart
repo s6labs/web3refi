@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../core/invoice.dart';
-import '../core/invoice_status.dart';
-import '../manager/invoice_manager.dart';
-import '../payment/invoice_payment_handler.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/invoice/manager/invoice_manager.dart';
+import 'package:web3refi/src/invoice/payment/invoice_payment_handler.dart';
 
 /// Manages invoice factoring (selling invoices to investors)
 class InvoiceFactoringManager extends ChangeNotifier {
@@ -426,12 +426,8 @@ class FactoringListing {
     required this.remainingAmount,
     required this.discountRate,
     required this.factorPrice,
-    this.minPrice,
-    required this.currency,
-    required this.dueDate,
-    required this.listedAt,
+    required this.currency, required this.dueDate, required this.listedAt, required this.status, this.minPrice,
     this.expiresAt,
-    required this.status,
     this.buyer,
     this.soldAt,
     this.notes,
@@ -559,6 +555,10 @@ extension FactoringConfigCopyWith on FactoringConfig {
   FactoringConfig copyWith({
     double? discountRate,
     BigInt? minPrice,
+    bool? enabled,
+    List<String>? allowedBuyers,
+    double? platformFeePercentage,
+    DateTime? enabledAt,
     String? listingId,
     DateTime? listedAt,
     String? buyer,
@@ -568,6 +568,10 @@ extension FactoringConfigCopyWith on FactoringConfig {
     return FactoringConfig(
       discountRate: discountRate ?? this.discountRate,
       minPrice: minPrice ?? this.minPrice,
+      enabled: enabled ?? this.enabled,
+      allowedBuyers: allowedBuyers ?? this.allowedBuyers,
+      platformFeePercentage: platformFeePercentage ?? this.platformFeePercentage,
+      enabledAt: enabledAt ?? this.enabledAt,
       listingId: listingId ?? this.listingId,
       listedAt: listedAt ?? this.listedAt,
       buyer: buyer ?? this.buyer,

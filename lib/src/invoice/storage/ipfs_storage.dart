@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import '../core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
 
 /// IPFS storage handler for invoices
 class IPFSStorage {

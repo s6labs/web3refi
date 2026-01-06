@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../wallet/wallet_manager.dart';
-import '../errors/web3_exception.dart';
-import 'xmtp/xmtp_client.dart';
-import 'mailchain/mailchain_client.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/errors/messaging_exception.dart';
+import 'package:web3refi/src/messaging/xmtp/xmtp_client.dart';
+import 'package:web3refi/src/messaging/mailchain/mailchain_client.dart';
+import 'package:web3refi/src/core/feature_access.dart';
 
 /// Unified messaging client for web3refi.
+///
+/// **PREMIUM FEATURE**: Requires CIFI ID (API key + secret) to use.
 ///
 /// Provides access to both XMTP (real-time chat) and Mailchain (blockchain email)
 /// through a single, consistent interface.
@@ -42,7 +45,7 @@ import 'mailchain/mailchain_client.dart';
 /// | Invoices/receipts | Mailchain | Document-style content |
 /// | Customer support chat | XMTP | Back-and-forth conversation |
 /// | Newsletter to holders | Mailchain | Batch sending |
-class MessagingClient extends ChangeNotifier {
+class MessagingClient extends ChangeNotifier with FeatureGuard {
   // ══════════════════════════════════════════════════════════════════════════
   // PROPERTIES
   // ══════════════════════════════════════════════════════════════════════════
@@ -55,6 +58,10 @@ class MessagingClient extends ChangeNotifier {
 
   /// Whether Mailchain is enabled.
   final bool enableMailchain;
+
+  /// Feature access manager for premium feature gating.
+  @override
+  final FeatureAccessManager? featureAccess;
 
   /// XMTP client for real-time messaging.
   late final XMTPClient _xmtpClient;
@@ -76,6 +83,7 @@ class MessagingClient extends ChangeNotifier {
     required WalletManager walletManager,
     this.xmtpEnvironment = 'production',
     this.enableMailchain = true,
+    this.featureAccess,
   }) : _walletManager = walletManager {
     _xmtpClient = XMTPClient(
       walletManager: _walletManager,
@@ -138,6 +146,8 @@ class MessagingClient extends ChangeNotifier {
 
   /// Initialize all messaging protocols.
   ///
+  /// **PREMIUM FEATURE**: Requires CIFI ID (API key + secret).
+  ///
   /// Requires a connected wallet. Call after [Web3Refi.instance.connect()].
   ///
   /// ```dart
@@ -150,7 +160,12 @@ class MessagingClient extends ChangeNotifier {
   /// await messaging.initializeXmtp();
   /// await messaging.initializeMailchain();
   /// ```
+  ///
+  /// Throws [PremiumFeatureException] if CIFI ID is not configured.
   Future<void> initialize() async {
+    // Check premium feature access
+    requireFeature(SdkFeature.xmtpMessaging);
+
     if (!_walletManager.isConnected) {
       throw MessagingException.notInitialized();
     }
@@ -191,7 +206,13 @@ class MessagingClient extends ChangeNotifier {
   }
 
   /// Initialize only XMTP.
+  ///
+  /// **PREMIUM FEATURE**: Requires CIFI ID (API key + secret).
+  ///
+  /// Throws [PremiumFeatureException] if CIFI ID is not configured.
   Future<void> initializeXmtp() async {
+    requireFeature(SdkFeature.xmtpMessaging);
+
     if (!_walletManager.isConnected) {
       throw MessagingException.notInitialized();
     }
@@ -200,7 +221,13 @@ class MessagingClient extends ChangeNotifier {
   }
 
   /// Initialize only Mailchain.
+  ///
+  /// **PREMIUM FEATURE**: Requires CIFI ID (API key + secret).
+  ///
+  /// Throws [PremiumFeatureException] if CIFI ID is not configured.
   Future<void> initializeMailchain() async {
+    requireFeature(SdkFeature.mailchainMessaging);
+
     if (!_walletManager.isConnected) {
       throw MessagingException.notInitialized();
     }
@@ -357,10 +384,12 @@ class MessagingClient extends ChangeNotifier {
   }
 
   /// Clean up resources.
-  Future<void> dispose() async {
-    await _xmtpClient.dispose();
-    await _mailchainClient.dispose();
+  @override
+  void dispose() {
+    _xmtpClient.dispose();
+    _mailchainClient.dispose();
     _isInitialized = false;
+    super.dispose();
   }
 }
 

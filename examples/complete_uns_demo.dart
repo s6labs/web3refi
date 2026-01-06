@@ -30,7 +30,7 @@ void main() async {
       enableSolanaNameService: true,
       enableSuiNameService: true,
       namesCacheSize: 1000,
-      namesCacheTtl: Duration(hours: 1),
+      namesCacheTtl: const Duration(hours: 1),
     ),
   );
 
@@ -38,7 +38,7 @@ void main() async {
 }
 
 class CompleteUNSDemo extends StatelessWidget {
-  const CompleteUNSDemo({Key? key}) : super(key: key);
+  const CompleteUNSDemo({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class CompleteUNSDemo extends StatelessWidget {
 }
 
 class DemoHomeScreen extends StatefulWidget {
-  const DemoHomeScreen({Key? key}) : super(key: key);
+  const DemoHomeScreen({super.key});
 
   @override
   State<DemoHomeScreen> createState() => _DemoHomeScreenState();
@@ -322,7 +322,7 @@ class _DemoHomeScreenState extends State<DemoHomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => NameManagementScreen(
+                          builder: (context) => const NameManagementScreen(
                             registryAddress: '0x...',
                             resolverAddress: '0x...',
                           ),

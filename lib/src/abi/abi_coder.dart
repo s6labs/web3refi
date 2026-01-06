@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 import 'dart:convert';
-import '../crypto/keccak.dart';
-import 'function_selector.dart';
-import 'types/abi_types.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
+import 'package:web3refi/src/abi/function_selector.dart';
+import 'package:web3refi/src/abi/types/abi_types.dart';
 
 /// ABI encoding and decoding for Ethereum smart contracts.
 ///
@@ -90,7 +90,7 @@ class AbiCoder {
     }
 
     // Calculate actual offsets for dynamic types
-    int headSize = headParts.fold<int>(0, (sum, part) => sum + part.length);
+    final int headSize = headParts.fold<int>(0, (sum, part) => sum + part.length);
     int currentOffset = headSize;
 
     int dynamicIndex = 0;

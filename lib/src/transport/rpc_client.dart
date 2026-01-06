@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../core/chain.dart';
-import '../errors/web3_exception.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/errors/rpc_exception.dart';
 
 /// JSON-RPC client for blockchain communication.
 ///
@@ -102,12 +102,12 @@ class RpcClient {
         return result;
       } catch (e) {
         lastError = e;
-        _log('Request failed on ${_currentEndpoint}: $e');
+        _log('Request failed on $_currentEndpoint: $e');
         
         // Try next endpoint
         if (attempt < _endpoints.length - 1) {
           _currentEndpointIndex = (_currentEndpointIndex + 1) % _endpoints.length;
-          _log('Switching to ${_currentEndpoint}');
+          _log('Switching to $_currentEndpoint');
         }
       }
     }
@@ -165,7 +165,7 @@ class RpcClient {
       
       return result;
     } on TimeoutException {
-      throw RpcException.timeout(_currentEndpoint);
+      throw RpcException.timeout(endpoint: _currentEndpoint);
     } on http.ClientException catch (e) {
       throw RpcException.networkError(e);
     }
@@ -208,8 +208,32 @@ class RpcClient {
   }
 
   /// Call a smart contract (read-only).
-  Future<String> ethCall(Map<String, String> transaction, {String block = 'latest'}) async {
-    final result = await call('eth_call', [transaction, block]);
+  ///
+  /// Can be called with either a transaction map or named parameters:
+  /// ```dart
+  /// // Using map
+  /// await ethCall({'to': address, 'data': data});
+  ///
+  /// // Using named parameters
+  /// await ethCall(to: address, data: data);
+  /// ```
+  Future<String> ethCall({
+    String? to,
+    String? data,
+    String? from,
+    String? value,
+    Map<String, String>? transaction,
+    String block = 'latest',
+  }) async {
+    // Build transaction map from named parameters or use provided map
+    final tx = transaction ?? <String, String>{
+      if (to != null) 'to': to,
+      if (data != null) 'data': data,
+      if (from != null) 'from': from,
+      if (value != null) 'value': value,
+    };
+
+    final result = await call('eth_call', [tx, block]);
     return result as String;
   }
 

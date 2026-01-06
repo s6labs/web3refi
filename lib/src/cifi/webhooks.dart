@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'dart:typed_data';
-import 'identity.dart';
+import 'package:web3refi/src/cifi/identity.dart';
 
 /// CiFi Webhooks for real-time notifications.
 ///
@@ -321,12 +321,8 @@ class Webhook {
     required this.id,
     required this.url,
     required this.events,
-    this.description,
-    required this.secret,
+    required this.secret, required this.enabled, required this.createdAt, required this.updatedAt, this.description,
     this.headers,
-    required this.enabled,
-    required this.createdAt,
-    required this.updatedAt,
   });
 
   Map<String, dynamic> toJson() => {
@@ -378,9 +374,8 @@ class WebhookEvent {
     required this.data,
     required this.attemptCount,
     required this.status,
-    this.responseCode,
+    required this.createdAt, this.responseCode,
     this.responseBody,
-    required this.createdAt,
     this.deliveredAt,
   });
 

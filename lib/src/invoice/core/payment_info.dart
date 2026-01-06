@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'invoice_status.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
 
 /// Payment information for an invoice
 class Payment extends Equatable {
@@ -65,8 +65,7 @@ class Payment extends Equatable {
     required this.tokenSymbol,
     required this.chainId,
     required this.createdAt,
-    this.confirmedAt,
-    required this.status,
+    required this.status, this.confirmedAt,
     this.blockNumber,
     this.confirmations = 0,
     this.notes,
@@ -219,8 +218,7 @@ class PaymentSplit extends Equatable {
 
   const PaymentSplit({
     required this.address,
-    this.name,
-    required this.percentage,
+    required this.percentage, this.name,
     this.fixedAmount,
     this.isPrimary = false,
   });

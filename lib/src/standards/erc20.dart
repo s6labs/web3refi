@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
-import '../transport/rpc_client.dart';
-import '../wallet/wallet_manager.dart';
-import '../core/chain.dart';
-import '../transactions/transaction.dart';
-import '../errors/web3_exception.dart';
-import 'abi_codec.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/transactions/transaction.dart';
+import 'package:web3refi/src/errors/web3_exception.dart';
+import 'package:web3refi/src/abi/abi_coder.dart';
 
 /// ERC-20 token contract interface.
 ///
@@ -107,9 +107,9 @@ class ERC20 {
     if (_name != null) return _name!;
 
     try {
-      final data = AbiCodec.encodeFunctionCall('name()', []);
+      final data = AbiCoder.encodeFunctionCall('name()', []);
       final result = await _ethCall(data);
-      _name = AbiCodec.decodeString(result);
+      _name = AbiCoder.decodeString(result);
       return _name!;
     } catch (e) {
       throw ContractException(
@@ -128,9 +128,9 @@ class ERC20 {
     if (_symbol != null) return _symbol!;
 
     try {
-      final data = AbiCodec.encodeFunctionCall('symbol()', []);
+      final data = AbiCoder.encodeFunctionCall('symbol()', []);
       final result = await _ethCall(data);
-      _symbol = AbiCodec.decodeString(result);
+      _symbol = AbiCoder.decodeString(result);
       return _symbol!;
     } catch (e) {
       throw ContractException(
@@ -149,9 +149,9 @@ class ERC20 {
     if (_decimals != null) return _decimals!;
 
     try {
-      final data = AbiCodec.encodeFunctionCall('decimals()', []);
+      final data = AbiCoder.encodeFunctionCall('decimals()', []);
       final result = await _ethCall(data);
-      _decimals = AbiCodec.decodeUint256(result).toInt();
+      _decimals = AbiCoder.decodeUint256(result).toInt();
       return _decimals!;
     } catch (e) {
       // Default to 18 if decimals() call fails (some tokens don't implement it)
@@ -162,9 +162,9 @@ class ERC20 {
 
   /// Get the total supply of the token.
   Future<BigInt> totalSupply() async {
-    final data = AbiCodec.encodeFunctionCall('totalSupply()', []);
+    final data = AbiCoder.encodeFunctionCall('totalSupply()', []);
     final result = await _ethCall(data);
-    return AbiCodec.decodeUint256(result);
+    return AbiCoder.decodeUint256(result);
   }
 
   /// Get all token metadata at once.
@@ -211,13 +211,13 @@ class ERC20 {
   Future<BigInt> balanceOf(String owner) async {
     _validateAddress(owner, 'owner');
 
-    final data = AbiCodec.encodeFunctionCall(
+    final data = AbiCoder.encodeFunctionCall(
       'balanceOf(address)',
-      [AbiCodec.encodeAddress(owner)],
+      [AbiCoder.encodeAddress(owner)],
     );
 
     final result = await _ethCall(data);
-    return AbiCodec.decodeUint256(result);
+    return AbiCoder.decodeUint256(result);
   }
 
   /// Get the allowance granted by [owner] to [spender].
@@ -227,16 +227,16 @@ class ERC20 {
     _validateAddress(owner, 'owner');
     _validateAddress(spender, 'spender');
 
-    final data = AbiCodec.encodeFunctionCall(
+    final data = AbiCoder.encodeFunctionCall(
       'allowance(address,address)',
       [
-        AbiCodec.encodeAddress(owner),
-        AbiCodec.encodeAddress(spender),
+        AbiCoder.encodeAddress(owner),
+        AbiCoder.encodeAddress(spender),
       ],
     );
 
     final result = await _ethCall(data);
-    return AbiCodec.decodeUint256(result);
+    return AbiCoder.decodeUint256(result);
   }
 
   /// Check if [spender] has sufficient allowance to spend [amount] from [owner].
@@ -293,11 +293,11 @@ class ERC20 {
       );
     }
 
-    final data = AbiCodec.encodeFunctionCall(
+    final data = AbiCoder.encodeFunctionCall(
       'transfer(address,uint256)',
       [
-        AbiCodec.encodeAddress(to),
-        AbiCodec.encodeUint256(amount),
+        AbiCoder.encodeAddress(to),
+        AbiCoder.encodeUint256(amount),
       ],
     );
 
@@ -328,11 +328,11 @@ class ERC20 {
     _requireWallet();
     _validateAddress(spender, 'spender');
 
-    final data = AbiCodec.encodeFunctionCall(
+    final data = AbiCoder.encodeFunctionCall(
       'approve(address,uint256)',
       [
-        AbiCodec.encodeAddress(spender),
-        AbiCodec.encodeUint256(amount),
+        AbiCoder.encodeAddress(spender),
+        AbiCoder.encodeUint256(amount),
       ],
     );
 
@@ -368,12 +368,12 @@ class ERC20 {
       );
     }
 
-    final data = AbiCodec.encodeFunctionCall(
+    final data = AbiCoder.encodeFunctionCall(
       'transferFrom(address,address,uint256)',
       [
-        AbiCodec.encodeAddress(from),
-        AbiCodec.encodeAddress(to),
-        AbiCodec.encodeUint256(amount),
+        AbiCoder.encodeAddress(from),
+        AbiCoder.encodeAddress(to),
+        AbiCoder.encodeUint256(amount),
       ],
     );
 
@@ -522,14 +522,14 @@ class ERC20 {
     dynamic toBlock = 'latest',
   }) async {
     // Transfer(address indexed from, address indexed to, uint256 value)
-    final transferTopic = AbiCodec.eventSignature(
+    final transferTopic = AbiCoder.eventSignature(
       'Transfer(address,address,uint256)',
     );
 
     final topics = <String?>[
       transferTopic,
-      from != null ? AbiCodec.encodeAddress(from, padded: true) : null,
-      to != null ? AbiCodec.encodeAddress(to, padded: true) : null,
+      from != null ? AbiCoder.encodeAddress(from, padded: true) : null,
+      to != null ? AbiCoder.encodeAddress(to, padded: true) : null,
     ];
 
     final logs = await rpcClient.getLogs(
@@ -549,14 +549,14 @@ class ERC20 {
     dynamic fromBlock = 'latest',
     dynamic toBlock = 'latest',
   }) async {
-    final approvalTopic = AbiCodec.eventSignature(
+    final approvalTopic = AbiCoder.eventSignature(
       'Approval(address,address,uint256)',
     );
 
     final topics = <String?>[
       approvalTopic,
-      owner != null ? AbiCodec.encodeAddress(owner, padded: true) : null,
-      spender != null ? AbiCodec.encodeAddress(spender, padded: true) : null,
+      owner != null ? AbiCoder.encodeAddress(owner, padded: true) : null,
+      spender != null ? AbiCoder.encodeAddress(spender, padded: true) : null,
     ];
 
     final logs = await rpcClient.getLogs(
@@ -580,11 +580,11 @@ class ERC20 {
   }) async {
     _requireWallet();
 
-    final data = AbiCodec.encodeFunctionCall(
+    final data = AbiCoder.encodeFunctionCall(
       'transfer(address,uint256)',
       [
-        AbiCodec.encodeAddress(to),
-        AbiCodec.encodeUint256(amount),
+        AbiCoder.encodeAddress(to),
+        AbiCoder.encodeUint256(amount),
       ],
     );
 
@@ -602,11 +602,11 @@ class ERC20 {
   }) async {
     _requireWallet();
 
-    final data = AbiCodec.encodeFunctionCall(
+    final data = AbiCoder.encodeFunctionCall(
       'approve(address,uint256)',
       [
-        AbiCodec.encodeAddress(spender),
-        AbiCodec.encodeUint256(amount),
+        AbiCoder.encodeAddress(spender),
+        AbiCoder.encodeUint256(amount),
       ],
     );
 
@@ -710,10 +710,10 @@ class ERC20 {
   // ══════════════════════════════════════════════════════════════════════════
 
   Future<String> _ethCall(String data) async {
-    return rpcClient.ethCall({
-      'to': address,
-      'data': data,
-    });
+    return rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
   }
 
   Future<String> _sendTransaction({
@@ -806,9 +806,9 @@ class TransferEvent {
   factory TransferEvent.fromLog(Map<String, dynamic> log) {
     final topics = log['topics'] as List;
     return TransferEvent(
-      from: AbiCodec.decodeAddress(topics[1] as String),
-      to: AbiCodec.decodeAddress(topics[2] as String),
-      value: AbiCodec.decodeUint256(log['data'] as String),
+      from: AbiCoder.decodeAddress(topics[1] as String),
+      to: AbiCoder.decodeAddress(topics[2] as String),
+      value: AbiCoder.decodeUint256(log['data'] as String),
       transactionHash: log['transactionHash'] as String,
       blockNumber: _parseHex(log['blockNumber']),
       logIndex: _parseHex(log['logIndex']),
@@ -845,9 +845,9 @@ class ApprovalEvent {
   factory ApprovalEvent.fromLog(Map<String, dynamic> log) {
     final topics = log['topics'] as List;
     return ApprovalEvent(
-      owner: AbiCodec.decodeAddress(topics[1] as String),
-      spender: AbiCodec.decodeAddress(topics[2] as String),
-      value: AbiCodec.decodeUint256(log['data'] as String),
+      owner: AbiCoder.decodeAddress(topics[1] as String),
+      spender: AbiCoder.decodeAddress(topics[2] as String),
+      value: AbiCoder.decodeUint256(log['data'] as String),
       transactionHash: log['transactionHash'] as String,
       blockNumber: _parseHex(log['blockNumber']),
       logIndex: _parseHex(log['logIndex']),

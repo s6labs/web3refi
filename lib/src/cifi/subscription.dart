@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'identity.dart';
+import 'package:web3refi/src/cifi/identity.dart';
 
 /// CiFi Subscription management for recurring payments.
 ///
@@ -222,7 +222,7 @@ class CiFiSubscription {
   }
 
   /// Get payment history for subscription.
-  Future<List<Payment>> getPaymentHistory(String subscriptionId) async {
+  Future<List<SubscriptionPayment>> getPaymentHistory(String subscriptionId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/v1/subscriptions/$subscriptionId/payments'),
       headers: {
@@ -240,7 +240,7 @@ class CiFiSubscription {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final payments = data['payments'] as List;
     return payments
-        .map((payment) => Payment.fromJson(payment as Map<String, dynamic>))
+        .map((payment) => SubscriptionPayment.fromJson(payment as Map<String, dynamic>))
         .toList();
   }
 
@@ -294,13 +294,9 @@ class Subscription {
     required this.amount,
     required this.paymentToken,
     required this.chainId,
-    this.paymentAddress,
-    required this.status,
-    required this.currentPeriodStart,
-    required this.currentPeriodEnd,
+    required this.status, required this.currentPeriodStart, required this.currentPeriodEnd, required this.createdAt, this.paymentAddress,
     this.cancelAt,
     this.canceledAt,
-    required this.createdAt,
     this.metadata,
   });
 
@@ -356,19 +352,19 @@ enum SubscriptionStatus {
   expired;
 }
 
-/// Payment information.
-class Payment {
+/// Subscription payment information.
+class SubscriptionPayment {
   final String id;
   final String subscriptionId;
   final BigInt amount;
   final String paymentToken;
   final int chainId;
   final String transactionHash;
-  final PaymentStatus status;
+  final SubscriptionPaymentStatus status;
   final DateTime createdAt;
   final DateTime? processedAt;
 
-  const Payment({
+  const SubscriptionPayment({
     required this.id,
     required this.subscriptionId,
     required this.amount,
@@ -392,15 +388,15 @@ class Payment {
         if (processedAt != null) 'processedAt': processedAt!.toIso8601String(),
       };
 
-  factory Payment.fromJson(Map<String, dynamic> json) {
-    return Payment(
+  factory SubscriptionPayment.fromJson(Map<String, dynamic> json) {
+    return SubscriptionPayment(
       id: json['id'] as String,
       subscriptionId: json['subscriptionId'] as String,
       amount: BigInt.parse(json['amount'] as String),
       paymentToken: json['paymentToken'] as String,
       chainId: json['chainId'] as int,
       transactionHash: json['transactionHash'] as String,
-      status: PaymentStatus.values.byName(json['status'] as String),
+      status: SubscriptionPaymentStatus.values.byName(json['status'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       processedAt: json['processedAt'] != null
           ? DateTime.parse(json['processedAt'] as String)
@@ -409,8 +405,8 @@ class Payment {
   }
 }
 
-/// Payment status.
-enum PaymentStatus {
+/// Subscription payment status.
+enum SubscriptionPaymentStatus {
   pending,
   processing,
   completed,
@@ -435,8 +431,7 @@ class SubscriptionPlan {
     required this.amount,
     required this.currency,
     required this.interval,
-    this.intervalCount = 1,
-    required this.features,
+    required this.features, this.intervalCount = 1,
   });
 
   Map<String, dynamic> toJson() => {

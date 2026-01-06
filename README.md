@@ -44,7 +44,7 @@ The `web3dart` package has been deprecated and unmaintained since 2023. Flutter 
 
 ```yaml
 dependencies:
-  web3refi: ^1.0.0
+  web3refi: ^2.0.0
 ```
 
 ```bash
@@ -81,6 +81,7 @@ flutter pub get
 
 ### 1. Initialize (once at app startup)
 
+#### Free Tier (Standalone - No External Dependencies)
 ```dart
 import 'package:web3refi/web3refi.dart';
 
@@ -88,8 +89,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Web3Refi.initialize(
-    config: Web3RefiConfig(
-      projectId: 'YOUR_WALLETCONNECT_PROJECT_ID',
+    config: Web3RefiConfig.standalone(
       chains: [Chains.ethereum, Chains.polygon],
       defaultChain: Chains.polygon,
     ),
@@ -99,7 +99,27 @@ void main() async {
 }
 ```
 
-Get your free Project ID at [cloud.walletconnect.com](https://cloud.walletconnect.com)
+#### Premium Tier (Full Features with CiFi ID)
+```dart
+import 'package:web3refi/web3refi.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Web3Refi.initialize(
+    config: Web3RefiConfig.premium(
+      chains: [Chains.ethereum, Chains.polygon],
+      cifiApiKey: 'YOUR_CIFI_API_KEY',
+      cifiApiSecret: 'YOUR_CIFI_API_SECRET',
+      projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Optional
+    ),
+  );
+
+  runApp(MyApp());
+}
+```
+
+Get your free WalletConnect Project ID at [cloud.walletconnect.com](https://cloud.walletconnect.com)
 
 ### 2. Connect Wallet
 
@@ -592,7 +612,7 @@ For UNS documentation, see [UNS_CONTRACTS_AUDIT.md](UNS_CONTRACTS_AUDIT.md)
 
 ## Project Status 🚀
 
-### ✅ Production Ready (v2.1.0)
+### ✅ Production Ready (v2.0.0)
 
 - **Total Code**: ~24,600 lines
   - Dart/Flutter SDK: ~7,500 lines

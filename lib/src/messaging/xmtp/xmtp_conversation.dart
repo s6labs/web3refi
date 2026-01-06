@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'xmtp_client.dart';
+import 'package:web3refi/src/messaging/xmtp/xmtp_client.dart';
 
 /// Represents a conversation in XMTP.
 ///

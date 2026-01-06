@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../core/chain.dart';
-import '../../errors/web3_exception.dart';
-import '../wallet_abstraction.dart';
-import '../authentication/auth_message.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/errors/wallet_exception.dart';
+import 'package:web3refi/src/wallet/wallet_abstraction.dart';
+import 'package:web3refi/src/wallet/authentication/auth_message.dart';
 
 /// Base adapter for EVM-compatible wallets (Ethereum, Polygon, etc.).
 ///
@@ -87,6 +86,9 @@ class EvmWalletAdapter implements Web3WalletAdapter {
 
   @override
   String? get chainId => _chainId;
+
+  @override
+  bool get isConnected => connectionState == WalletConnectionState.connected;
 
   @override
   Future<WalletConnectionResult> connect() async {
@@ -421,12 +423,10 @@ class CoinbaseWalletAdapter extends EvmWalletAdapter {
 /// Generic EVM wallet adapter for WalletConnect-only wallets.
 class GenericEvmAdapter extends EvmWalletAdapter {
   GenericEvmAdapter({
-    required String walletId,
-    required String walletName,
+    required super.walletId,
+    required super.walletName,
     String? deepLinkScheme,
   }) : super(
-          walletId: walletId,
-          walletName: walletName,
           deepLinkScheme: deepLinkScheme ?? 'wc://',
         );
 }

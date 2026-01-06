@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../core/web3refi_base.dart';
-import '../core/chain.dart';
-import '../core/constants/chains.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
+import 'package:web3refi/src/core/chain.dart';
 
 /// A dropdown selector for switching between blockchain networks.
 ///

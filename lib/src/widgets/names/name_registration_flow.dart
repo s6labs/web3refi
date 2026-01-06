@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../names/registry/registration_controller.dart';
-import '../../core/web3refi_base.dart';
+import 'package:web3refi/src/names/registry/registration_controller.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
 
 /// Multi-step name registration flow widget
 ///
@@ -53,7 +53,7 @@ class NameRegistrationFlow extends StatefulWidget {
   final Duration defaultDuration;
 
   const NameRegistrationFlow({
-    Key? key,
+    super.key,
     required this.registryAddress,
     required this.resolverAddress,
     required this.tld,
@@ -62,7 +62,7 @@ class NameRegistrationFlow extends StatefulWidget {
     this.suggestedName,
     this.hideDurationSelection = false,
     this.defaultDuration = const Duration(days: 365),
-  }) : super(key: key);
+  });
 
   @override
   State<NameRegistrationFlow> createState() => _NameRegistrationFlowState();
@@ -234,10 +234,10 @@ class _NameRegistrationFlowState extends State<NameRegistrationFlow> {
             ],
           ),
         if (_isAvailable == true)
-          Row(
+          const Row(
             children: [
               Icon(Icons.check_circle, color: Colors.green),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 'Available!',
                 style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
@@ -245,10 +245,10 @@ class _NameRegistrationFlowState extends State<NameRegistrationFlow> {
             ],
           ),
         if (_isAvailable == false)
-          Row(
+          const Row(
             children: [
               Icon(Icons.cancel, color: Colors.red),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 'Not available',
                 style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
@@ -269,10 +269,10 @@ class _NameRegistrationFlowState extends State<NameRegistrationFlow> {
 
   Widget _buildDurationStep() {
     final durations = [
-      Duration(days: 90),
-      Duration(days: 365),
-      Duration(days: 730),
-      Duration(days: 1095),
+      const Duration(days: 90),
+      const Duration(days: 365),
+      const Duration(days: 730),
+      const Duration(days: 1095),
     ];
 
     return Column(

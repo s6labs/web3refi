@@ -1,10 +1,10 @@
 import 'dart:typed_data';
-import '../crypto/rlp.dart';
-import '../crypto/signature.dart';
-import '../crypto/keccak.dart';
-import '../crypto/address.dart';
-import '../crypto/secp256k1.dart';
-import '../signers/hd_wallet.dart';
+import 'package:web3refi/src/crypto/rlp.dart';
+import 'package:web3refi/src/crypto/signature.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
+import 'package:web3refi/src/crypto/address.dart';
+import 'package:web3refi/src/crypto/secp256k1.dart';
+import 'package:web3refi/src/signers/hd_wallet.dart';
 
 /// EIP-2930 transaction (Type 1).
 ///
@@ -46,9 +46,7 @@ class EIP2930Transaction {
     required this.nonce,
     required this.gasPrice,
     required this.gasLimit,
-    this.to,
-    required this.value,
-    required this.data,
+    required this.value, required this.data, this.to,
     this.accessList = const [],
     this.v,
     this.r,

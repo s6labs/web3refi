@@ -1,4 +1,3 @@
-import 'dart:async';
 
 /// Analytics and metrics system for name service operations
 ///

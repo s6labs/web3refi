@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:web3refi/web3refi.dart';
 
-import '../widgets/custom_widgets.dart';
+import 'package:web3refi_example/widgets/custom_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

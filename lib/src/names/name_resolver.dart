@@ -1,4 +1,4 @@
-import 'resolution_result.dart';
+import 'package:web3refi/src/names/resolution_result.dart';
 
 /// Abstract interface for name resolvers.
 ///

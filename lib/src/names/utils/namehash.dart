@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'dart:convert';
-import '../../crypto/keccak.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
 
 /// Compute the ENS namehash for a domain name.
 ///

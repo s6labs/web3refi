@@ -391,7 +391,7 @@ void main() {
       expect(
         () => Web3RefiConfig(
           projectId: 'test',
-          chains: [],
+          chains: const [],
         ),
         throwsA(isA<AssertionError>()),
       );
@@ -445,7 +445,7 @@ void main() {
 
   group('AppMetadata', () {
     test('toJson includes all fields', () {
-      final metadata = AppMetadata(
+      const metadata = AppMetadata(
         name: 'Test App',
         description: 'A test application',
         url: 'https://test.app',
@@ -463,7 +463,7 @@ void main() {
     });
 
     test('toJson excludes null redirect', () {
-      final metadata = AppMetadata(
+      const metadata = AppMetadata(
         name: 'Test',
         description: 'Test',
         url: 'https://test.app',

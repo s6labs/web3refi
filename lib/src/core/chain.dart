@@ -650,3 +650,246 @@ extension BlockchainTypeExtension on BlockchainType {
     }
   }
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// PREDEFINED CHAIN CONFIGURATIONS
+// ════════════════════════════════════════════════════════════════════════════
+
+/// Predefined chain configurations for common networks.
+///
+/// Example:
+/// ```dart
+/// final config = Web3RefiConfig(
+///   projectId: 'xxx',
+///   chains: [Chains.ethereum, Chains.polygon],
+///   defaultChain: Chains.polygon,
+/// );
+/// ```
+abstract class Chains {
+  // ──────────────────────────────────────────────────────────────────────────
+  // ETHEREUM & LAYER 2s
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Ethereum Mainnet
+  static const ethereum = Chain(
+    chainId: 1,
+    name: 'Ethereum',
+    shortName: 'ETH',
+    rpcUrl: 'https://eth.llamarpc.com',
+    backupRpcUrls: [
+      'https://rpc.ankr.com/eth',
+      'https://ethereum.publicnode.com',
+    ],
+    symbol: 'ETH',
+    currencyName: 'Ether',
+    explorerUrl: 'https://etherscan.io',
+    blockTimeSeconds: 12.0,
+    supportsEIP1559: true,
+  );
+
+  /// Polygon Mainnet
+  static const polygon = Chain(
+    chainId: 137,
+    name: 'Polygon',
+    shortName: 'MATIC',
+    rpcUrl: 'https://polygon.llamarpc.com',
+    backupRpcUrls: [
+      'https://rpc.ankr.com/polygon',
+      'https://polygon.publicnode.com',
+    ],
+    symbol: 'MATIC',
+    currencyName: 'MATIC',
+    explorerUrl: 'https://polygonscan.com',
+    blockTimeSeconds: 2.0,
+    supportsEIP1559: true,
+  );
+
+  /// Arbitrum One
+  static const arbitrum = Chain(
+    chainId: 42161,
+    name: 'Arbitrum One',
+    shortName: 'ARB',
+    rpcUrl: 'https://arb1.arbitrum.io/rpc',
+    backupRpcUrls: [
+      'https://rpc.ankr.com/arbitrum',
+      'https://arbitrum.publicnode.com',
+    ],
+    symbol: 'ETH',
+    currencyName: 'Ether',
+    explorerUrl: 'https://arbiscan.io',
+    blockTimeSeconds: 0.25,
+    supportsEIP1559: true,
+  );
+
+  /// Optimism
+  static const optimism = Chain(
+    chainId: 10,
+    name: 'Optimism',
+    shortName: 'OP',
+    rpcUrl: 'https://mainnet.optimism.io',
+    backupRpcUrls: [
+      'https://rpc.ankr.com/optimism',
+      'https://optimism.publicnode.com',
+    ],
+    symbol: 'ETH',
+    currencyName: 'Ether',
+    explorerUrl: 'https://optimistic.etherscan.io',
+    blockTimeSeconds: 2.0,
+    supportsEIP1559: true,
+  );
+
+  /// Base
+  static const base = Chain(
+    chainId: 8453,
+    name: 'Base',
+    shortName: 'BASE',
+    rpcUrl: 'https://mainnet.base.org',
+    backupRpcUrls: [
+      'https://base.llamarpc.com',
+      'https://base.publicnode.com',
+    ],
+    symbol: 'ETH',
+    currencyName: 'Ether',
+    explorerUrl: 'https://basescan.org',
+    blockTimeSeconds: 2.0,
+    supportsEIP1559: true,
+  );
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // OTHER EVM CHAINS
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Binance Smart Chain
+  static const bsc = Chain(
+    chainId: 56,
+    name: 'BNB Smart Chain',
+    shortName: 'BSC',
+    rpcUrl: 'https://bsc-dataseed.binance.org',
+    backupRpcUrls: [
+      'https://rpc.ankr.com/bsc',
+      'https://bsc.publicnode.com',
+    ],
+    symbol: 'BNB',
+    currencyName: 'BNB',
+    explorerUrl: 'https://bscscan.com',
+    blockTimeSeconds: 3.0,
+    supportsEIP1559: false,
+  );
+
+  /// Avalanche C-Chain
+  static const avalanche = Chain(
+    chainId: 43114,
+    name: 'Avalanche',
+    shortName: 'AVAX',
+    rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+    backupRpcUrls: [
+      'https://rpc.ankr.com/avalanche',
+      'https://avalanche.publicnode.com',
+    ],
+    symbol: 'AVAX',
+    currencyName: 'Avalanche',
+    explorerUrl: 'https://snowtrace.io',
+    blockTimeSeconds: 2.0,
+    supportsEIP1559: true,
+  );
+
+  /// XDC Network
+  static const xdc = Chain(
+    chainId: 50,
+    name: 'XDC Network',
+    shortName: 'XDC',
+    rpcUrl: 'https://rpc.xinfin.network',
+    backupRpcUrls: [
+      'https://erpc.xinfin.network',
+      'https://rpc.xdcrpc.com',
+    ],
+    symbol: 'XDC',
+    currencyName: 'XDC',
+    explorerUrl: 'https://explorer.xinfin.network',
+    blockTimeSeconds: 2.0,
+    supportsEIP1559: false,
+  );
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // TESTNETS
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Goerli Testnet (deprecated, use Sepolia)
+  static const goerli = Chain(
+    chainId: 5,
+    name: 'Goerli',
+    shortName: 'GOR',
+    rpcUrl: 'https://rpc.ankr.com/eth_goerli',
+    symbol: 'ETH',
+    currencyName: 'Goerli Ether',
+    explorerUrl: 'https://goerli.etherscan.io',
+    isTestnet: true,
+    blockTimeSeconds: 12.0,
+    supportsEIP1559: true,
+  );
+
+  /// Sepolia Testnet
+  static const sepolia = Chain(
+    chainId: 11155111,
+    name: 'Sepolia',
+    shortName: 'SEP',
+    rpcUrl: 'https://rpc.sepolia.org',
+    backupRpcUrls: [
+      'https://rpc.ankr.com/eth_sepolia',
+      'https://sepolia.publicnode.com',
+    ],
+    symbol: 'ETH',
+    currencyName: 'Sepolia Ether',
+    explorerUrl: 'https://sepolia.etherscan.io',
+    isTestnet: true,
+    blockTimeSeconds: 12.0,
+    supportsEIP1559: true,
+  );
+
+  /// Polygon Mumbai Testnet
+  static const polygonMumbai = Chain(
+    chainId: 80001,
+    name: 'Polygon Mumbai',
+    shortName: 'MATIC',
+    rpcUrl: 'https://rpc-mumbai.maticvigil.com',
+    backupRpcUrls: [
+      'https://rpc.ankr.com/polygon_mumbai',
+    ],
+    symbol: 'MATIC',
+    currencyName: 'MATIC',
+    explorerUrl: 'https://mumbai.polygonscan.com',
+    isTestnet: true,
+    blockTimeSeconds: 2.0,
+    supportsEIP1559: true,
+  );
+
+  /// Get all mainnet chains.
+  static List<Chain> get mainnets => [
+        ethereum,
+        polygon,
+        arbitrum,
+        optimism,
+        base,
+        bsc,
+        avalanche,
+        xdc,
+      ];
+
+  /// Get all testnet chains.
+  static List<Chain> get testnets => [
+        goerli,
+        sepolia,
+        polygonMumbai,
+      ];
+
+  /// Get all chains.
+  static List<Chain> get all => [...mainnets, ...testnets];
+
+  /// Get a chain by its chain ID.
+  static Chain? byChainId(int chainId) {
+    for (final chain in all) {
+      if (chain.chainId == chainId) return chain;
+    }
+    return null;
+  }
+}

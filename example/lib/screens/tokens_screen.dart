@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web3refi/web3refi.dart';
 
-import '../widgets/custom_widgets.dart';
+import 'package:web3refi_example/widgets/custom_widgets.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // TOKEN DATA
@@ -498,9 +498,8 @@ class _TokenCard extends StatelessWidget {
 
   const _TokenCard({
     required this.token,
-    this.balance,
+    required this.onTap, this.balance,
     this.isLoading = false,
-    required this.onTap,
   });
 
   @override

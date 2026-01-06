@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../cifi/client.dart';
-import '../cifi/auth.dart';
-import '../signing/siwe.dart';
-import '../signers/hd_wallet.dart';
+import 'package:web3refi/src/cifi/client.dart';
+import 'package:web3refi/src/cifi/auth.dart';
+import 'package:web3refi/src/signing/siwe.dart';
+import 'package:web3refi/src/signers/hd_wallet.dart';
 
 /// CiFi Login Button widget for Flutter applications.
 ///
@@ -58,7 +58,7 @@ class CiFiLoginButton extends StatefulWidget {
   final String? domain;
 
   const CiFiLoginButton({
-    Key? key,
+    super.key,
     required this.client,
     required this.signer,
     this.onSuccess,
@@ -73,7 +73,7 @@ class CiFiLoginButton extends StatefulWidget {
     this.elevation,
     this.chainId = 1,
     this.domain,
-  }) : super(key: key);
+  });
 
   @override
   State<CiFiLoginButton> createState() => _CiFiLoginButtonState();
@@ -102,7 +102,7 @@ class _CiFiLoginButtonState extends State<CiFiLoginButton> {
 
       // 3. Sign message
       final signature = widget.signer.sign(
-        siweMessage.toMessage().codeUnits as List<int>,
+        siweMessage.toMessage().codeUnits,
       );
 
       // 4. Login with signature
@@ -197,7 +197,7 @@ class CiFiLoginButtonCompact extends StatefulWidget {
   final String? domain;
 
   const CiFiLoginButtonCompact({
-    Key? key,
+    super.key,
     required this.client,
     required this.signer,
     this.onSuccess,
@@ -208,7 +208,7 @@ class CiFiLoginButtonCompact extends StatefulWidget {
     this.size,
     this.chainId = 1,
     this.domain,
-  }) : super(key: key);
+  });
 
   @override
   State<CiFiLoginButtonCompact> createState() =>
@@ -232,7 +232,7 @@ class _CiFiLoginButtonCompactState extends State<CiFiLoginButtonCompact> {
 
       final siweMessage = SiweMessage.fromMessage(challenge.message);
       final signature = widget.signer.sign(
-        siweMessage.toMessage().codeUnits as List<int>,
+        siweMessage.toMessage().codeUnits,
       );
 
       final session = await widget.client.auth.loginWithSiwe(
@@ -307,7 +307,7 @@ class CiFiLoginButtonBranded extends StatefulWidget {
   final String? domain;
 
   const CiFiLoginButtonBranded({
-    Key? key,
+    super.key,
     required this.client,
     required this.signer,
     this.onSuccess,
@@ -315,7 +315,7 @@ class CiFiLoginButtonBranded extends StatefulWidget {
     this.onError,
     this.chainId = 1,
     this.domain,
-  }) : super(key: key);
+  });
 
   @override
   State<CiFiLoginButtonBranded> createState() => _CiFiLoginButtonBrandedState();
@@ -338,7 +338,7 @@ class _CiFiLoginButtonBrandedState extends State<CiFiLoginButtonBranded> {
 
       final siweMessage = SiweMessage.fromMessage(challenge.message);
       final signature = widget.signer.sign(
-        siweMessage.toMessage().codeUnits as List<int>,
+        siweMessage.toMessage().codeUnits,
       );
 
       final session = await widget.client.auth.loginWithSiwe(

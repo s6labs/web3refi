@@ -1,18 +1,25 @@
-import '../transport/rpc_client.dart';
-import '../cifi/client.dart';
-import 'name_resolver.dart';
-import 'resolution_result.dart';
-import 'resolvers/ens_resolver.dart';
-import 'resolvers/cifi_resolver.dart';
-import 'resolvers/unstoppable_resolver.dart';
-import 'resolvers/spaceid_resolver.dart';
-import 'resolvers/sns_resolver.dart';
-import 'resolvers/suins_resolver.dart';
-import 'utils/namehash.dart';
-import 'cache/name_cache.dart';
-import 'batch/batch_resolver.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/cifi/client.dart';
+import 'package:web3refi/src/names/name_resolver.dart';
+import 'package:web3refi/src/names/resolution_result.dart';
+import 'package:web3refi/src/names/resolvers/ens_resolver.dart';
+import 'package:web3refi/src/names/resolvers/cifi_resolver.dart';
+import 'package:web3refi/src/names/resolvers/unstoppable_resolver.dart';
+import 'package:web3refi/src/names/resolvers/spaceid_resolver.dart';
+import 'package:web3refi/src/names/resolvers/sns_resolver.dart';
+import 'package:web3refi/src/names/resolvers/suins_resolver.dart';
+import 'package:web3refi/src/names/utils/namehash.dart';
+import 'package:web3refi/src/names/cache/name_cache.dart';
+import 'package:web3refi/src/names/batch/batch_resolver.dart';
+import 'package:web3refi/src/core/feature_access.dart';
 
 /// Universal Name Service - One API for all name resolution systems.
+///
+/// **PREMIUM FEATURE**: Requires CIFI ID (API key + secret) for full access.
+///
+/// Free tier includes basic ENS resolution only (.eth names).
+/// Premium tier includes all name services: ENS, Unstoppable Domains,
+/// Space ID, Solana Name Service, Sui Name Service, and CiFi names.
 ///
 /// Provides a unified interface for resolving names across multiple
 /// name services (ENS, Unstoppable Domains, Solana Name Service, etc.)
@@ -57,7 +64,7 @@ import 'batch/batch_resolver.dart';
 /// final records = await uns.getRecords('vitalik.eth');
 /// print(records?.texts['avatar']);
 /// ```
-class UniversalNameService {
+class UniversalNameService with FeatureGuard {
   final RpcClient _rpc;
   final CiFiClient? _cifiClient;
   final Map<String, NameResolver> _resolvers = {};
@@ -70,9 +77,14 @@ class UniversalNameService {
   /// Batch resolver for optimized multi-name resolution
   BatchResolver? _batchResolver;
 
+  /// Feature access manager for premium feature gating.
+  @override
+  final FeatureAccessManager? featureAccess;
+
   UniversalNameService({
     required RpcClient rpcClient,
     CiFiClient? cifiClient,
+    this.featureAccess,
     bool enableCiFiFallback = true,
     bool enableUnstoppableDomains = true,
     bool enableSpaceId = true,
@@ -114,14 +126,19 @@ class UniversalNameService {
   /// Resolve a name to an address.
   ///
   /// Supports multiple formats:
-  /// - ENS: "vitalik.eth"
-  /// - CiFi: "@alice" or "alice.cifi"
-  /// - Custom: "bob.custom"
+  /// - ENS: "vitalik.eth" (FREE - available without CIFI ID)
+  /// - CiFi: "@alice" or "alice.cifi" (PREMIUM)
+  /// - Unstoppable: "bob.crypto" (PREMIUM)
+  /// - Space ID: "alice.bnb" (PREMIUM)
+  /// - SNS: "alice.sol" (PREMIUM)
+  /// - SuiNS: "alice.sui" (PREMIUM)
   ///
   /// [name] - The name to resolve
   /// [chainId] - Optional chain ID for multi-chain resolution
   /// [coinType] - Optional coin type (SLIP-0044) for multi-coin addresses
   /// [useCache] - Whether to use cached results (default: true)
+  ///
+  /// Throws [PremiumFeatureException] for non-ENS names without CIFI ID.
   Future<String?> resolve(
     String name, {
     int? chainId,
@@ -135,6 +152,9 @@ class UniversalNameService {
     if (validation != null) {
       throw ArgumentError(validation);
     }
+
+    // Check feature access based on name type
+    _requireFeatureForName(normalized);
 
     // Check cache
     if (useCache) {
@@ -172,6 +192,51 @@ class UniversalNameService {
     }
 
     return null;
+  }
+
+  /// Check feature access based on name type.
+  /// ENS (.eth) is free, all others require premium.
+  void _requireFeatureForName(String name) {
+    // ENS names are free tier
+    if (name.endsWith('.eth')) {
+      return; // Free - no feature check needed
+    }
+
+    // CiFi names (@username, .cifi)
+    if (name.startsWith('@') || name.endsWith('.cifi')) {
+      requireFeature(SdkFeature.cifiNameResolution);
+      return;
+    }
+
+    // Unstoppable Domains
+    final udTlds = ['crypto', 'nft', 'wallet', 'x', 'bitcoin', 'dao', '888', 'zil', 'blockchain'];
+    for (final tld in udTlds) {
+      if (name.endsWith('.$tld')) {
+        requireFeature(SdkFeature.unstoppableDomainsResolution);
+        return;
+      }
+    }
+
+    // Space ID
+    if (name.endsWith('.bnb') || name.endsWith('.arb')) {
+      requireFeature(SdkFeature.spaceIdResolution);
+      return;
+    }
+
+    // Solana Name Service
+    if (name.endsWith('.sol')) {
+      requireFeature(SdkFeature.solanaNameService);
+      return;
+    }
+
+    // Sui Name Service
+    if (name.endsWith('.sui')) {
+      requireFeature(SdkFeature.suiNameService);
+      return;
+    }
+
+    // Default: require full UNS access for unknown TLDs
+    requireFeature(SdkFeature.universalNameService);
   }
 
   /// Resolve a name and return full result with metadata.

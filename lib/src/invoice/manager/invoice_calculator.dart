@@ -1,5 +1,5 @@
-import '../core/invoice.dart';
-import '../core/invoice_item.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_item.dart';
 
 /// Calculator utilities for invoices
 class InvoiceCalculator {

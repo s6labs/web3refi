@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:url_launcher/url_launcher.dart';
-import '../../core/chain.dart';
-import '../../errors/web3_exception.dart';
-import '../wallet_abstraction.dart';
-import '../authentication/auth_message.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/errors/wallet_exception.dart';
+import 'package:web3refi/src/wallet/wallet_abstraction.dart';
+import 'package:web3refi/src/wallet/authentication/auth_message.dart';
 
 /// Adapter for Solana wallets.
 ///
@@ -91,6 +91,9 @@ class SolanaWalletAdapter implements Web3WalletAdapter {
 
   @override
   String? get chainId => _cluster != null ? 'solana-$_cluster' : null;
+
+  @override
+  bool get isConnected => connectionState == WalletConnectionState.connected;
 
   /// The current Solana cluster.
   String? get cluster => _cluster;

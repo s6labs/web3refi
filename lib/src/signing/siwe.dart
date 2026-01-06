@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
-import '../crypto/signature.dart';
-import '../signers/hd_wallet.dart';
-import 'personal_sign.dart';
+import 'package:web3refi/src/crypto/signature.dart';
+import 'package:web3refi/src/signers/hd_wallet.dart';
+import 'package:web3refi/src/signing/personal_sign.dart';
 
 /// Sign-In with Ethereum (SIWE) implementation (EIP-4361).
 ///
@@ -73,12 +73,7 @@ class SiweMessage {
   SiweMessage({
     required this.domain,
     required this.address,
-    this.statement,
-    required this.uri,
-    required this.version,
-    required this.chainId,
-    required this.nonce,
-    required this.issuedAt,
+    required this.uri, required this.version, required this.chainId, required this.nonce, required this.issuedAt, this.statement,
     this.expirationTime,
     this.notBefore,
     this.requestId,
@@ -89,10 +84,8 @@ class SiweMessage {
   factory SiweMessage.create({
     required String domain,
     required String address,
-    String? statement,
-    required String uri,
+    required String uri, required int chainId, String? statement,
     String version = '1',
-    required int chainId,
     String? nonce,
     DateTime? issuedAt,
     DateTime? expirationTime,

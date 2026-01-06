@@ -13,7 +13,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:equatable/equatable.dart';
-import '../core/chain.dart';
+import 'package:web3refi/src/core/chain.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TOKEN TYPES
@@ -395,12 +395,11 @@ class TokenPrice extends Equatable {
     required this.address,
     required this.chainId,
     required this.priceUsd,
-    this.change24h,
+    required this.updatedAt, this.change24h,
     this.volume24h,
     this.marketCap,
     this.athPrice,
     this.atlPrice,
-    required this.updatedAt,
   });
 
   /// Whether the price is stale (older than 5 minutes).
@@ -784,10 +783,9 @@ class WalletConnection extends Equatable {
   const WalletConnection({
     required this.address,
     required this.chainId,
-    this.walletId,
+    required this.connectedAt, this.walletId,
     this.walletName,
     this.sessionTopic,
-    required this.connectedAt,
     this.lastActivityAt,
     this.supportedChainIds,
     this.capabilities,
@@ -965,9 +963,8 @@ class WalletInfo extends Equatable {
   const WalletInfo({
     required this.id,
     required this.name,
-    this.description,
+    required this.chainType, this.description,
     this.iconUrl,
-    required this.chainType,
     this.supportedNetworks,
     this.deepLinkScheme,
     this.universalLink,
@@ -1334,11 +1331,8 @@ class WalletSession extends Equatable {
 
   const WalletSession({
     required this.id,
-    this.wcTopic,
-    required this.address,
-    required this.chainId,
+    required this.address, required this.chainId, required this.createdAt, this.wcTopic,
     this.walletId,
-    required this.createdAt,
     this.expiresAt,
     this.isValid = true,
   });

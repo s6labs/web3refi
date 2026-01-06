@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../core/web3refi_base.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
 
 /// A complete chat screen for XMTP messaging.
 ///
@@ -53,8 +53,7 @@ class ChatScreen extends StatefulWidget {
   final ChatTheme? theme;
 
   const ChatScreen({
-    super.key,
-    required this.recipientAddress,
+    required this.recipientAddress, super.key,
     this.recipientName,
     this.appBar,
     this.messageBubbleBuilder,
@@ -189,7 +188,7 @@ class _ChatScreenState extends State<ChatScreen> {
       widget.onError?.call(e.toString());
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Failed to send message'),
             backgroundColor: Colors.red,
           ),
@@ -722,27 +721,27 @@ class ChatTheme {
     this.sendButtonIconColor,
   });
 
-  factory ChatTheme.light() => ChatTheme(
+  factory ChatTheme.light() => const ChatTheme(
     backgroundColor: Colors.white,
     appBarColor: Colors.white,
     inputBackgroundColor: Colors.white,
-    sentBubbleColor: const Color(0xFF007AFF),
-    receivedBubbleColor: const Color(0xFFE9E9EB),
+    sentBubbleColor: Color(0xFF007AFF),
+    receivedBubbleColor: Color(0xFFE9E9EB),
     sentTextColor: Colors.white,
     receivedTextColor: Colors.black87,
-    sendButtonColor: const Color(0xFF007AFF),
+    sendButtonColor: Color(0xFF007AFF),
     sendButtonIconColor: Colors.white,
   );
 
-  factory ChatTheme.dark() => ChatTheme(
-    backgroundColor: const Color(0xFF1C1C1E),
-    appBarColor: const Color(0xFF1C1C1E),
-    inputBackgroundColor: const Color(0xFF1C1C1E),
-    sentBubbleColor: const Color(0xFF007AFF),
-    receivedBubbleColor: const Color(0xFF3A3A3C),
+  factory ChatTheme.dark() => const ChatTheme(
+    backgroundColor: Color(0xFF1C1C1E),
+    appBarColor: Color(0xFF1C1C1E),
+    inputBackgroundColor: Color(0xFF1C1C1E),
+    sentBubbleColor: Color(0xFF007AFF),
+    receivedBubbleColor: Color(0xFF3A3A3C),
     sentTextColor: Colors.white,
     receivedTextColor: Colors.white,
-    sendButtonColor: const Color(0xFF007AFF),
+    sendButtonColor: Color(0xFF007AFF),
     sendButtonIconColor: Colors.white,
   );
 }

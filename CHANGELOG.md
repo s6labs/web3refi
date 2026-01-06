@@ -11,10 +11,126 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned
 - DEX swap integration (Uniswap, SushiSwap)
-- NFT support (ERC-721, ERC-1155)
-- ENS name resolution
 - Hardware wallet support (Ledger, Trezor)
 - Cosmos chain adapters
+
+---
+
+## [2.0.0] - 2026-01-06
+
+### 🚀 Major Release - Complete SDK Overhaul
+
+A comprehensive update addressing all compilation issues, adding WalletConnect v2 integration, and introducing the premium tier system.
+
+### Added
+
+#### SDK Tiers System
+- **Free Tier (Standalone)** — Core blockchain functionality without third-party dependencies
+- **Premium Tier (with CIFI ID)** — Full feature set with CIFI API integration
+- `SdkFeature` enum for feature gating
+- `canUseFeature()` method for runtime feature checks
+
+#### WalletConnect v2 Integration
+- Full WalletConnect v2 support via `reown_appkit` package
+- `WalletManager` with optional `projectId` for WalletConnect features
+- `StaticWalletRegistry` with predefined wallet metadata (MetaMask, Coinbase, Trust, Rainbow, Phantom)
+- Wallet events: `WalletConnectedEvent`, `WalletDisconnectedEvent`, `ChainChangedEvent`, `AccountChangedEvent`
+- Session persistence and restoration
+- Deep link support for native wallet apps
+
+#### Invoice Module Enhancements
+- `issueDate` getter on `Invoice` class (alias for `createdAt`)
+- `notes` property on `InvoiceItem` for line-item comments
+- `FactoringConfig` extended with: `listingId`, `listedAt`, `buyer`, `soldAt`, `factorPrice`
+- `InvoiceStatistics` class for analytics
+- `getInvoicesBySender()` and `getInvoicesByRecipient()` methods
+
+#### Universal Name Service (UNS)
+- Complete UNS implementation with multiple resolvers
+- ENS resolver (free tier)
+- CiFi resolver (premium)
+- Unstoppable Domains, SpaceID, SNS, SuiNS resolvers
+- Name caching system
+- CCIP-Read support for offchain resolution
+- Batch resolution for multiple names
+- ENS normalization
+- Expiration tracking
+- Name analytics
+
+#### Messaging System
+- XMTP client for real-time encrypted chat
+- Mailchain client for blockchain email
+- `MessagingException` for proper error handling
+- `InboxScreen` and `ChatScreen` widgets
+
+#### New Widgets
+- `CiFiLoginButton` — Premium authentication widget
+- Name service widgets: `AddressInputField`, `NameDisplay`, `NameRegistrationFlow`, `NameManagementScreen`
+
+### Changed
+
+#### Breaking Changes
+- `WalletManager` constructor now takes `projectId` as optional parameter (enables standalone mode)
+- `WalletConnectionResult` in `WalletManager` uses `int chainId` (vs `String` in `WalletConnectionResult` from wallet_abstraction)
+- `web_socket_channel` upgraded to ^3.0.1 (required for `reown_appkit`)
+
+#### Dependency Updates
+- Added `reown_appkit: ^1.3.0` for WalletConnect v2
+- Upgraded `web_socket_channel: ^2.4.0` → `^3.0.1`
+- All dependencies verified compatible
+
+### Fixed
+
+#### Compilation Fixes
+- Fixed all 100+ compilation errors from v1.x
+- Resolved type mismatches between wallet abstraction and manager layers
+- Fixed missing imports in invoice viewer widget
+- Resolved circular dependency issues
+- Fixed `FactoringConfig.copyWith()` extension to include all properties
+
+#### Invoice Module
+- Fixed `Payment` and `InvoiceItem` import issues in widgets
+- Added missing `notes` property to `InvoiceItem` class
+- Fixed `FactoringConfig` JSON serialization
+
+### Security
+- No private key storage — all signing via wallet apps
+- Secure session storage with `flutter_secure_storage`
+- Feature gating for premium functionality
+
+### Documentation
+- Updated library documentation with tier system explanation
+- Added examples for both free and premium initialization
+- Comprehensive export organization in `web3refi.dart`
+
+### Migration from 1.x
+
+```dart
+// Before (1.x) - projectId was required
+await Web3Refi.initialize(
+  config: Web3RefiConfig(
+    projectId: 'YOUR_PROJECT_ID', // Required
+    chains: [Chains.ethereum],
+  ),
+);
+
+// After (2.0) - Standalone mode (no WalletConnect)
+await Web3Refi.initialize(
+  config: Web3RefiConfig.standalone(
+    chains: [Chains.ethereum],
+  ),
+);
+
+// After (2.0) - With WalletConnect (optional)
+await Web3Refi.initialize(
+  config: Web3RefiConfig.premium(
+    chains: [Chains.ethereum],
+    cifiApiKey: 'YOUR_KEY',
+    cifiApiSecret: 'YOUR_SECRET',
+    projectId: 'YOUR_PROJECT_ID', // Optional
+  ),
+);
+```
 
 ---
 
@@ -156,6 +272,7 @@ Internal alpha release for S6 Labs testing.
 
 | Version | Date | Milestone |
 |---------|------|-----------|
+| 2.0.0 | 2026-01-06 | 🚀 Major release - SDK overhaul |
 | 1.0.0 | 2025-01-15 | 🎉 Stable release |
 | 0.9.0 | 2025-01-08 | Beta release |
 | 0.5.0 | 2024-12-20 | Alpha release |

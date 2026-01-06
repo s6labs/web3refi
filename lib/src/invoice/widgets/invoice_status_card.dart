@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../core/invoice.dart';
-import '../core/invoice_status.dart';
-import '../manager/invoice_calculator.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/invoice/manager/invoice_calculator.dart';
 
 /// Compact status display card with progress indicator
 class InvoiceStatusCard extends StatelessWidget {
@@ -11,12 +11,12 @@ class InvoiceStatusCard extends StatelessWidget {
   final bool showActions;
 
   const InvoiceStatusCard({
-    Key? key,
+    super.key,
     required this.invoice,
     this.onTap,
     this.showProgress = true,
     this.showActions = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

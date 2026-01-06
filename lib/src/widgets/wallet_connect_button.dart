@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../core/web3refi_base.dart';
-import '../wallet/wallet_manager.dart';
-import '../errors/web3_exception.dart';
+import 'package:web3refi/src/core/web3refi_base.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/errors/web3_exception.dart';
 
 /// A pre-built button for connecting and managing wallet connections.
 ///
@@ -412,11 +412,7 @@ class _BaseButton extends StatelessWidget {
   final Widget child;
 
   const _BaseButton({
-    super.key,
-    required this.onPressed,
-    required this.style,
-    required this.size,
-    required this.child,
+    required this.onPressed, required this.style, required this.size, required this.child, super.key,
   });
 
   @override

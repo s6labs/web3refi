@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../core/invoice.dart';
-import '../payment/invoice_payment_handler.dart';
-import '../manager/invoice_calculator.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/payment/invoice_payment_handler.dart';
+import 'package:web3refi/src/invoice/manager/invoice_calculator.dart';
 
 /// One-click payment interface for invoices
 class InvoicePaymentWidget extends StatefulWidget {
@@ -11,12 +11,12 @@ class InvoicePaymentWidget extends StatefulWidget {
   final Function(String error)? onPaymentError;
 
   const InvoicePaymentWidget({
-    Key? key,
+    super.key,
     required this.invoice,
     required this.paymentHandler,
     this.onPaymentComplete,
     this.onPaymentError,
-  }) : super(key: key);
+  });
 
   @override
   State<InvoicePaymentWidget> createState() => _InvoicePaymentWidgetState();
@@ -200,7 +200,7 @@ class _InvoicePaymentWidgetState extends State<InvoicePaymentWidget> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<int>(
-          value: _selectedChainId,
+          initialValue: _selectedChainId,
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

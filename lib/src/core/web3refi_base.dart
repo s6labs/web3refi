@@ -1,18 +1,62 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'web3refi_config.dart';
-import '../transport/rpc_client.dart';
-import '../core/chain.dart';
-import '../transactions/transaction.dart';
-import '../wallet/wallet_manager.dart';
-import '../standards/erc20.dart';
-import '../defi/token_helper.dart';
-import '../messaging/message_client.dart';
-import '../errors/web3_exception.dart';
-import '../names/universal_name_service.dart';
-import '../cifi/client.dart';
+import 'package:web3refi/src/core/web3refi_config.dart';
+import 'package:web3refi/src/core/feature_access.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/transactions/transaction.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/wallet/wallet_abstraction.dart';
+import 'package:web3refi/src/standards/erc20.dart';
+import 'package:web3refi/src/defi/token_helper.dart';
+import 'package:web3refi/src/messaging/message_client.dart';
+import 'package:web3refi/src/errors/wallet_exception.dart';
+import 'package:web3refi/src/names/universal_name_service.dart';
+import 'package:web3refi/src/cifi/client.dart';
 
 /// The main entry point for the web3refi SDK.
+///
+/// ## SDK Tiers
+///
+/// The SDK supports two tiers of functionality:
+///
+/// ### Free Tier (Standalone)
+/// Available without any third-party configuration:
+/// - RPC operations (reading blockchain data)
+/// - Token operations (ERC20/721/1155)
+/// - Transaction signing and sending
+/// - Basic ENS resolution (.eth names only)
+/// - HD wallet generation
+/// - Cryptographic operations
+///
+/// ### Premium Tier (with CIFI ID)
+/// Requires CIFI API key and secret:
+/// - XMTP & Mailchain messaging
+/// - Universal Name Service (all name resolvers)
+/// - Invoice management
+/// - CiFi identity & authentication
+///
+/// ## Usage
+///
+/// ### Free Tier (Standalone)
+/// ```dart
+/// await Web3Refi.initialize(
+///   config: Web3RefiConfig.standalone(
+///     chains: [Chains.ethereum, Chains.polygon],
+///   ),
+/// );
+/// ```
+///
+/// ### Premium Tier
+/// ```dart
+/// await Web3Refi.initialize(
+///   config: Web3RefiConfig.premium(
+///     chains: [Chains.ethereum, Chains.polygon],
+///     cifiApiKey: 'YOUR_CIFI_API_KEY',
+///     cifiApiSecret: 'YOUR_CIFI_API_SECRET',
+///   ),
+/// );
+/// ```
 ///
 /// Initialize once at app startup:
 /// ```dart
@@ -35,7 +79,7 @@ import '../cifi/client.dart';
 /// final address = Web3Refi.instance.address;
 /// await Web3Refi.instance.connect();
 /// ```
-class Web3Refi extends ChangeNotifier {
+class Web3Refi extends ChangeNotifier with FeatureGuard {
   // ══════════════════════════════════════════════════════════════════════════
   // SINGLETON
   // ══════════════════════════════════════════════════════════════════════════
@@ -79,7 +123,7 @@ class Web3Refi extends ChangeNotifier {
   }) async {
     if (_instance != null) {
       _instance!._log('Web3Refi already initialized. Reinitializing...');
-      await _instance!.dispose();
+      _instance!.dispose();
     }
 
     final web3Refi = Web3Refi._(config);
@@ -96,6 +140,10 @@ class Web3Refi extends ChangeNotifier {
   /// The configuration used to initialize the SDK.
   final Web3RefiConfig config;
 
+  /// Feature access manager for premium feature gating.
+  @override
+  late final FeatureAccessManager featureAccess;
+
   /// Wallet manager for connection and signing.
   late final WalletManager walletManager;
 
@@ -109,9 +157,14 @@ class Web3Refi extends ChangeNotifier {
   late final TokenHelper tokens;
 
   /// Messaging client (XMTP + Mailchain).
+  ///
+  /// **PREMIUM FEATURE**: Requires CIFI ID to use.
   late final MessagingClient messaging;
 
   /// Universal Name Service (ENS, CiFi, Unstoppable, etc.)
+  ///
+  /// Basic ENS resolution (.eth) is free.
+  /// Other name services require CIFI ID.
   late final UniversalNameService names;
 
   /// Whether initialization is complete.
@@ -125,6 +178,13 @@ class Web3Refi extends ChangeNotifier {
 
   Future<void> _initialize() async {
     _log('Initializing Web3Refi...');
+    _log('Tier: ${config.hasPremiumAccess ? "Premium" : "Free"}');
+
+    // Initialize feature access manager
+    featureAccess = FeatureAccessManager(
+      cifiApiKey: config.cifiApiKey,
+      cifiApiSecret: config.cifiApiSecret,
+    );
 
     // Initialize RPC clients for all configured chains
     for (final chain in config.chains) {
@@ -135,11 +195,11 @@ class Web3Refi extends ChangeNotifier {
       );
     }
 
-    // Initialize wallet manager
+    // Initialize wallet manager (works without projectId)
     walletManager = WalletManager(
+      chains: config.chains,
       projectId: config.projectId,
       appMetadata: config.appMetadata,
-      chains: config.chains,
       defaultChain: config.defaultChain,
       enableLogging: config.enableLogging,
     );
@@ -150,26 +210,29 @@ class Web3Refi extends ChangeNotifier {
       notifyListeners();
     });
 
-    // Initialize token helper
+    // Initialize token helper (FREE - always available)
     tokens = TokenHelper(
       rpcClient: rpcClient,
       walletManager: walletManager,
     );
 
-    // Initialize messaging
+    // Initialize messaging (PREMIUM - requires CIFI ID)
     messaging = MessagingClient(
       walletManager: walletManager,
       xmtpEnvironment: config.xmtpEnvironment,
       enableMailchain: config.enableMailchain,
+      featureAccess: featureAccess,
     );
 
     // Initialize Universal Name Service
+    // ENS is free, other resolvers require CIFI ID
     names = UniversalNameService(
       rpcClient: rpcClient,
+      featureAccess: featureAccess,
       cifiClient: config.cifiApiKey != null ? CiFiClient(apiKey: config.cifiApiKey!) : null,
-      enableCiFiFallback: config.enableCiFiNames ?? true,
-      enableUnstoppableDomains: config.enableUnstoppableDomains ?? true,
-      enableSpaceId: config.enableSpaceId ?? true,
+      enableCiFiFallback: config.enableCiFiNames ?? config.hasPremiumAccess,
+      enableUnstoppableDomains: config.enableUnstoppableDomains ?? config.hasPremiumAccess,
+      enableSpaceId: config.enableSpaceId ?? config.hasPremiumAccess,
       enableSolanaNameService: config.enableSolanaNameService ?? false,
       enableSuiNameService: config.enableSuiNameService ?? false,
       cacheMaxSize: config.namesCacheSize ?? 1000,
@@ -183,6 +246,18 @@ class Web3Refi extends ChangeNotifier {
 
     _isReady = true;
     _log('Web3Refi initialized successfully');
+    _logFeatureAccess();
+  }
+
+  void _logFeatureAccess() {
+    if (!config.enableLogging) return;
+
+    final summary = featureAccess.summary;
+    _log('Feature access: ${summary.accessibleCount}/${summary.totalCount} features available');
+
+    if (summary.lockedFeatures.isNotEmpty) {
+      _log('Locked features (require CIFI ID): ${summary.lockedFeatures.map((f) => f.description).join(", ")}');
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -224,6 +299,18 @@ class Web3Refi extends ChangeNotifier {
 
   /// Current connection state.
   WalletConnectionState get connectionState => walletManager.state;
+
+  /// Whether premium features are available.
+  bool get isPremium => featureAccess.hasPremiumAccess;
+
+  /// Current SDK tier.
+  FeatureTier get tier => featureAccess.currentTier;
+
+  /// Feature access summary.
+  FeatureAccessSummary get featureSummary => featureAccess.summary;
+
+  /// Check if a specific feature is accessible.
+  bool canUseFeature(SdkFeature feature) => featureAccess.canAccess(feature);
 
   // ══════════════════════════════════════════════════════════════════════════
   // WALLET CONNECTION
@@ -506,13 +593,15 @@ class Web3Refi extends ChangeNotifier {
   }
 
   /// Clean up resources.
-  Future<void> dispose() async {
-    await walletManager.dispose();
+  @override
+  void dispose() {
+    walletManager.dispose();
     for (final client in _rpcClients.values) {
       client.dispose();
     }
     _rpcClients.clear();
     _isReady = false;
     _instance = null;
+    super.dispose();
   }
 }

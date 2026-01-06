@@ -47,6 +47,23 @@
 /// ```
 library;
 
+/// Severity level of an error.
+///
+/// Used to categorize errors by their impact and urgency.
+enum ErrorSeverity {
+  /// Informational message, not an actual error.
+  info,
+
+  /// Warning that doesn't prevent operation but should be addressed.
+  warning,
+
+  /// Error that prevents the operation from completing.
+  error,
+
+  /// Critical error that may affect system stability.
+  critical,
+}
+
 /// Base exception for all web3refi errors.
 ///
 /// Provides a consistent interface for error handling across the library.
@@ -89,6 +106,17 @@ class Web3Exception implements Exception {
   /// - Chain ID for network errors
   final Map<String, dynamic>? data;
 
+  /// Severity level of the error.
+  ///
+  /// Used to categorize errors by impact for logging and handling.
+  final ErrorSeverity? severity;
+
+  /// Additional context information about the error.
+  ///
+  /// Contains structured data that helps debug or display the error,
+  /// such as parameter values, addresses, or amounts involved.
+  final Map<String, dynamic>? context;
+
   /// Creates a new Web3Exception.
   ///
   /// Parameters:
@@ -97,12 +125,16 @@ class Web3Exception implements Exception {
   /// - [cause]: Original exception that caused this error
   /// - [stackTrace]: Stack trace from the original error
   /// - [data]: Additional context data
+  /// - [severity]: Error severity level
+  /// - [context]: Structured context information
   const Web3Exception({
     required this.message,
     required this.code,
     this.cause,
     this.stackTrace,
     this.data,
+    this.severity,
+    this.context,
   });
 
   /// Creates a generic web3refi exception.

@@ -534,10 +534,10 @@ class _SessionCard extends StatelessWidget {
     return Card(
       child: Column(
         children: [
-          ListTile(
-            leading: const Icon(Icons.vpn_key),
-            title: const Text('Session Management'),
-            subtitle: const Text('Active session'),
+          const ListTile(
+            leading: Icon(Icons.vpn_key),
+            title: Text('Session Management'),
+            subtitle: Text('Active session'),
           ),
           const Divider(height: 1),
           Padding(
@@ -609,10 +609,10 @@ class _AboutCard extends StatelessWidget {
             subtitle: const Text('v1.0.0'),
           ),
           const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.business),
-            title: const Text('Created by'),
-            subtitle: const Text('S6 Labs LLC'),
+          const ListTile(
+            leading: Icon(Icons.business),
+            title: Text('Created by'),
+            subtitle: Text('S6 Labs LLC'),
           ),
           ListTile(
             leading: const Icon(Icons.code),

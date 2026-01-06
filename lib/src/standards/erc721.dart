@@ -1,7 +1,7 @@
 import 'dart:typed_data';
-import '../transport/rpc_client.dart';
-import '../wallet/wallet_manager.dart';
-import '../abi/abi_coder.dart';
+import 'package:web3refi/src/transport/rpc_client.dart';
+import 'package:web3refi/src/wallet/wallet_manager.dart';
+import 'package:web3refi/src/abi/abi_coder.dart';
 
 /// ERC-721 Non-Fungible Token (NFT) interface.
 ///

@@ -220,16 +220,16 @@ class TransactionRequest extends Equatable {
   /// Transaction nonce.
   final int? nonce;
 
-  const TransactionRequest({
+  TransactionRequest({
     required this.to,
-    this.value = BigInt.zero,
+    BigInt? value,
     this.data,
     this.gasLimit,
     this.maxFeePerGas,
     this.maxPriorityFeePerGas,
     this.gasPrice,
     this.nonce,
-  });
+  }) : value = value ?? BigInt.zero;
 
   /// Convert to map for RPC call.
   Map<String, String> toJson() {

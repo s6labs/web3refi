@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../core/invoice.dart';
-import '../core/invoice_status.dart';
-import '../advanced/recurring_invoice_manager.dart';
-import '../manager/invoice_calculator.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_status.dart';
+import 'package:web3refi/src/invoice/advanced/recurring_invoice_manager.dart';
+import 'package:web3refi/src/invoice/manager/invoice_calculator.dart';
 
 /// Pick recurring invoice templates
 class InvoiceTemplateSelector extends StatefulWidget {
@@ -12,12 +12,12 @@ class InvoiceTemplateSelector extends StatefulWidget {
   final bool showCreateButton;
 
   const InvoiceTemplateSelector({
-    Key? key,
+    super.key,
     required this.recurringManager,
     this.onTemplateSelected,
     this.onGenerateFromTemplate,
     this.showCreateButton = true,
-  }) : super(key: key);
+  });
 
   @override
   State<InvoiceTemplateSelector> createState() =>

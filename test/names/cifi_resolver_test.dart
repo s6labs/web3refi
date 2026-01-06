@@ -57,9 +57,8 @@ class CiFiProfile {
 
   CiFiProfile({
     required this.userId,
-    this.username,
+    required this.primaryAddress, this.username,
     this.email,
-    required this.primaryAddress,
   });
 }
 
@@ -292,7 +291,7 @@ void main() {
 
   group('Reverse Resolution', () {
     test('should resolve address to @username', () async {
-      final address = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      const address = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
       mockCiFi.mockLinkedAddresses(address, [
         LinkedWallet(address: address, chainId: 1),
@@ -312,7 +311,7 @@ void main() {
     });
 
     test('should return @userId if username not set', () async {
-      final address = '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+      const address = '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 
       mockCiFi.mockLinkedAddresses(address, [
         LinkedWallet(address: address, chainId: 1),
@@ -332,7 +331,7 @@ void main() {
     });
 
     test('should return null if address not linked', () async {
-      final address = '0xcccccccccccccccccccccccccccccccccccccccc';
+      const address = '0xcccccccccccccccccccccccccccccccccccccccc';
 
       mockCiFi.mockLinkedAddresses(address, []);
 

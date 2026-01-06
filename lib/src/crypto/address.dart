@@ -1,7 +1,7 @@
 import 'dart:typed_data';
-import 'keccak.dart';
-import 'rlp.dart';
-import 'secp256k1.dart';
+import 'package:web3refi/src/crypto/keccak.dart';
+import 'package:web3refi/src/crypto/rlp.dart';
+import 'package:web3refi/src/crypto/secp256k1.dart';
 
 /// Ethereum address utilities.
 ///

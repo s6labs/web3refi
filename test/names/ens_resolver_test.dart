@@ -208,8 +208,8 @@ void main() {
 
   group('Reverse Resolution', () {
     test('should resolve address to ENS name', () async {
-      final address = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
-      final reverseNode = 'd8da6bf26964af9d7eed9e03e53415d37aa96045.addr.reverse';
+      const address = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
+      const reverseNode = 'd8da6bf26964af9d7eed9e03e53415d37aa96045.addr.reverse';
 
       // Mock resolver() call for reverse node
       final resolverCallData = AbiCoder.encodeFunctionCall(
@@ -242,8 +242,8 @@ void main() {
     });
 
     test('should handle address without reverse record', () async {
-      final address = '0x1234567890123456789012345678901234567890';
-      final reverseNode = '1234567890123456789012345678901234567890.addr.reverse';
+      const address = '0x1234567890123456789012345678901234567890';
+      const reverseNode = '1234567890123456789012345678901234567890.addr.reverse';
 
       // Mock resolver() returning zero address
       final resolverCallData = AbiCoder.encodeFunctionCall(
@@ -265,9 +265,9 @@ void main() {
 
     test('should normalize address before reverse lookup', () async {
       // Should handle both with and without 0x prefix
-      final address1 = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
-      final address2 = 'd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
-      final reverseNode = 'd8da6bf26964af9d7eed9e03e53415d37aa96045.addr.reverse';
+      const address1 = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
+      const address2 = 'd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
+      const reverseNode = 'd8da6bf26964af9d7eed9e03e53415d37aa96045.addr.reverse';
 
       // Mock resolver() call
       final resolverCallData = AbiCoder.encodeFunctionCall(

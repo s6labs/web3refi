@@ -1,4 +1,4 @@
-import '../types.dart';
+import 'package:web3refi/src/core/types.dart';
 
 /// Predefined token addresses and metadata for supported chains.
 ///

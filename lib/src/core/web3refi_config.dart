@@ -1,22 +1,50 @@
 import 'package:equatable/equatable.dart';
-import '../core/chain.dart';
-import 'constants/chains.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/core/feature_access.dart';
 
 /// Configuration for initializing the Web3Refi SDK.
 ///
-/// Example:
+/// The SDK supports two tiers:
+///
+/// ## Free Tier (Standalone)
+/// Core blockchain functionality without third-party dependencies:
+/// - RPC operations, transactions, token operations
+/// - Basic ENS resolution
+/// - HD wallet generation
+/// - Cryptographic operations
+///
+/// ## Premium Tier (with CIFI ID)
+/// Full feature set including:
+/// - XMTP & Mailchain messaging
+/// - Universal Name Service (all resolvers)
+/// - Invoice management
+/// - CiFi identity & authentication
+///
+/// Example (Free Tier):
 /// ```dart
 /// final config = Web3RefiConfig(
-///   projectId: 'YOUR_WALLETCONNECT_PROJECT_ID',
 ///   chains: [Chains.ethereum, Chains.polygon],
-///   defaultChain: Chains.polygon,
+/// );
+/// ```
+///
+/// Example (Premium Tier):
+/// ```dart
+/// final config = Web3RefiConfig(
+///   chains: [Chains.ethereum, Chains.polygon],
+///   cifiApiKey: 'YOUR_CIFI_API_KEY',
+///   cifiApiSecret: 'YOUR_CIFI_API_SECRET',
+///   projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Optional for WalletConnect
 /// );
 /// ```
 class Web3RefiConfig extends Equatable {
-  /// WalletConnect Cloud Project ID.
+  /// WalletConnect/Reown Cloud Project ID.
   ///
+  /// Optional - only required if using WalletConnect for wallet connections.
   /// Get yours at https://cloud.walletconnect.com
-  final String projectId;
+  ///
+  /// If not provided, the SDK will use direct wallet integration
+  /// (private key signing, injected providers, etc.)
+  final String? projectId;
 
   /// List of supported blockchain networks.
   ///
@@ -49,11 +77,27 @@ class Web3RefiConfig extends Equatable {
   /// Enable Mailchain integration.
   final bool enableMailchain;
 
-  // Universal Name Service Configuration
-  /// CiFi API key for CiFi name resolution.
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CIFI ID CONFIGURATION (Premium Features)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// CiFi API key for premium features.
+  ///
+  /// Required for: Messaging, UNS, Invoice, CiFi Identity.
+  /// Get yours at https://cifi.network
   final String? cifiApiKey;
 
+  /// CiFi API secret for premium features.
+  ///
+  /// Required along with [cifiApiKey] for premium feature access.
+  final String? cifiApiSecret;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // UNIVERSAL NAME SERVICE CONFIGURATION
+  // ═══════════════════════════════════════════════════════════════════════════
+
   /// Enable CiFi names as fallback (@username, .cifi).
+  /// Requires premium access (CIFI API key + secret).
   final bool? enableCiFiNames;
 
   /// Enable Unstoppable Domains (.crypto, .nft, etc.).
@@ -74,9 +118,9 @@ class Web3RefiConfig extends Equatable {
   /// Name resolution cache TTL.
   final Duration? namesCacheTtl;
 
-  const Web3RefiConfig({
-    required this.projectId,
+  Web3RefiConfig({
     required this.chains,
+    this.projectId,
     Chain? defaultChain,
     this.appMetadata,
     this.enableLogging = false,
@@ -85,8 +129,10 @@ class Web3RefiConfig extends Equatable {
     this.autoRestoreSession = true,
     this.xmtpEnvironment = 'production',
     this.enableMailchain = true,
-    // UNS configuration
+    // CIFI ID configuration
     this.cifiApiKey,
+    this.cifiApiSecret,
+    // UNS configuration
     this.enableCiFiNames,
     this.enableUnstoppableDomains,
     this.enableSpaceId,
@@ -95,35 +141,109 @@ class Web3RefiConfig extends Equatable {
     this.namesCacheSize,
     this.namesCacheTtl,
   })  : defaultChain = defaultChain ?? (chains.isNotEmpty ? chains.first : Chains.ethereum),
-        assert(chains.length > 0, 'At least one chain must be provided');
+        assert(chains.isNotEmpty, 'At least one chain must be provided');
+
+  /// Whether premium features are available (CIFI ID configured).
+  bool get hasPremiumAccess =>
+      cifiApiKey != null &&
+      cifiApiKey!.isNotEmpty &&
+      cifiApiSecret != null &&
+      cifiApiSecret!.isNotEmpty;
+
+  /// Whether WalletConnect is configured.
+  bool get hasWalletConnect => projectId != null && projectId!.isNotEmpty;
+
+  /// Get the feature access manager for this configuration.
+  FeatureAccessManager get featureAccess => FeatureAccessManager(
+        cifiApiKey: cifiApiKey,
+        cifiApiSecret: cifiApiSecret,
+      );
 
   /// Creates a config for development/testing with sensible defaults.
+  ///
+  /// This is a free tier config - no CIFI ID required.
   factory Web3RefiConfig.development({
-    required String projectId,
+    String? projectId,
+    String? cifiApiKey,
+    String? cifiApiSecret,
   }) {
     return Web3RefiConfig(
+      chains: [Chains.polygonMumbai, Chains.sepolia],
       projectId: projectId,
-      chains: [Chains.polygonMumbai, Chains.goerli],
       defaultChain: Chains.polygonMumbai,
       enableLogging: true,
       xmtpEnvironment: 'dev',
+      cifiApiKey: cifiApiKey,
+      cifiApiSecret: cifiApiSecret,
     );
   }
 
   /// Creates a config for production with mainnet chains.
   factory Web3RefiConfig.production({
-    required String projectId,
-    List<Chain>? chains,
+    required List<Chain> chains,
+    String? projectId,
     Chain? defaultChain,
     AppMetadata? appMetadata,
+    String? cifiApiKey,
+    String? cifiApiSecret,
   }) {
-    final productionChains = chains ?? [Chains.ethereum, Chains.polygon];
     return Web3RefiConfig(
+      chains: chains,
       projectId: projectId,
-      chains: productionChains,
-      defaultChain: defaultChain ?? productionChains.first,
+      defaultChain: defaultChain ?? chains.first,
       appMetadata: appMetadata,
       enableLogging: false,
+      cifiApiKey: cifiApiKey,
+      cifiApiSecret: cifiApiSecret,
+    );
+  }
+
+  /// Creates a standalone free tier config (no third-party dependencies).
+  ///
+  /// Use this when you only need core blockchain functionality:
+  /// - RPC operations
+  /// - Token operations (ERC20/721/1155)
+  /// - Transaction signing
+  /// - Basic ENS resolution
+  factory Web3RefiConfig.standalone({
+    required List<Chain> chains,
+    Chain? defaultChain,
+    bool enableLogging = false,
+  }) {
+    return Web3RefiConfig(
+      chains: chains,
+      defaultChain: defaultChain,
+      enableLogging: enableLogging,
+    );
+  }
+
+  /// Creates a premium config with CIFI ID for full feature access.
+  ///
+  /// Includes access to:
+  /// - XMTP & Mailchain messaging
+  /// - Universal Name Service (all resolvers)
+  /// - Invoice management
+  /// - CiFi identity & authentication
+  factory Web3RefiConfig.premium({
+    required List<Chain> chains,
+    required String cifiApiKey,
+    required String cifiApiSecret,
+    String? projectId,
+    Chain? defaultChain,
+    AppMetadata? appMetadata,
+    bool enableLogging = false,
+  }) {
+    return Web3RefiConfig(
+      chains: chains,
+      projectId: projectId,
+      defaultChain: defaultChain,
+      appMetadata: appMetadata,
+      enableLogging: enableLogging,
+      cifiApiKey: cifiApiKey,
+      cifiApiSecret: cifiApiSecret,
+      enableCiFiNames: true,
+      enableUnstoppableDomains: true,
+      enableSpaceId: true,
     );
   }
 
@@ -140,6 +260,7 @@ class Web3RefiConfig extends Equatable {
         xmtpEnvironment,
         enableMailchain,
         cifiApiKey,
+        cifiApiSecret,
         enableCiFiNames,
         enableUnstoppableDomains,
         enableSpaceId,
@@ -161,6 +282,7 @@ class Web3RefiConfig extends Equatable {
     String? xmtpEnvironment,
     bool? enableMailchain,
     String? cifiApiKey,
+    String? cifiApiSecret,
     bool? enableCiFiNames,
     bool? enableUnstoppableDomains,
     bool? enableSpaceId,
@@ -170,8 +292,8 @@ class Web3RefiConfig extends Equatable {
     Duration? namesCacheTtl,
   }) {
     return Web3RefiConfig(
-      projectId: projectId ?? this.projectId,
       chains: chains ?? this.chains,
+      projectId: projectId ?? this.projectId,
       defaultChain: defaultChain ?? this.defaultChain,
       appMetadata: appMetadata ?? this.appMetadata,
       enableLogging: enableLogging ?? this.enableLogging,
@@ -181,6 +303,7 @@ class Web3RefiConfig extends Equatable {
       xmtpEnvironment: xmtpEnvironment ?? this.xmtpEnvironment,
       enableMailchain: enableMailchain ?? this.enableMailchain,
       cifiApiKey: cifiApiKey ?? this.cifiApiKey,
+      cifiApiSecret: cifiApiSecret ?? this.cifiApiSecret,
       enableCiFiNames: enableCiFiNames ?? this.enableCiFiNames,
       enableUnstoppableDomains: enableUnstoppableDomains ?? this.enableUnstoppableDomains,
       enableSpaceId: enableSpaceId ?? this.enableSpaceId,

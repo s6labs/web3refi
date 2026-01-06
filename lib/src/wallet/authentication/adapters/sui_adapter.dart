@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:url_launcher/url_launcher.dart';
-import '../../core/chain.dart';
-import '../../errors/web3_exception.dart';
-import '../wallet_abstraction.dart';
-import '../authentication/auth_message.dart';
+import 'package:web3refi/src/core/chain.dart';
+import 'package:web3refi/src/errors/wallet_exception.dart';
+import 'package:web3refi/src/wallet/wallet_abstraction.dart';
+import 'package:web3refi/src/wallet/authentication/auth_message.dart';
 
 /// Adapter for Sui blockchain wallets.
 ///
@@ -88,6 +88,9 @@ class SuiWalletAdapter implements Web3WalletAdapter {
 
   @override
   String? get chainId => _network;
+
+  @override
+  bool get isConnected => connectionState == WalletConnectionState.connected;
 
   /// The current Sui network.
   String? get network => _network?.replaceFirst('sui-', '');

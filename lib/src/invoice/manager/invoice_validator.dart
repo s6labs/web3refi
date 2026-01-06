@@ -1,6 +1,6 @@
-import '../core/invoice.dart';
-import '../core/invoice_item.dart';
-import '../core/payment_info.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice_item.dart';
+import 'package:web3refi/src/invoice/core/payment_info.dart';
 
 /// Validator for invoice data
 class InvoiceValidator {

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
-import '../core/invoice.dart';
+import 'package:web3refi/src/invoice/core/invoice.dart';
 
 /// Arweave storage handler for invoices (permanent storage)
 class ArweaveStorage {
