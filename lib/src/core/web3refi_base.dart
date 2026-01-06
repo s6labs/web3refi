@@ -9,6 +9,8 @@ import '../standards/erc20.dart';
 import '../defi/token_helper.dart';
 import '../messaging/message_client.dart';
 import '../errors/web3_exception.dart';
+import '../names/universal_name_service.dart';
+import '../cifi/client.dart';
 
 /// The main entry point for the web3refi SDK.
 ///
@@ -109,6 +111,9 @@ class Web3Refi extends ChangeNotifier {
   /// Messaging client (XMTP + Mailchain).
   late final MessagingClient messaging;
 
+  /// Universal Name Service (ENS, CiFi, Unstoppable, etc.)
+  late final UniversalNameService names;
+
   /// Whether initialization is complete.
   bool _isReady = false;
 
@@ -156,6 +161,19 @@ class Web3Refi extends ChangeNotifier {
       walletManager: walletManager,
       xmtpEnvironment: config.xmtpEnvironment,
       enableMailchain: config.enableMailchain,
+    );
+
+    // Initialize Universal Name Service
+    names = UniversalNameService(
+      rpcClient: rpcClient,
+      cifiClient: config.cifiApiKey != null ? CiFiClient(apiKey: config.cifiApiKey!) : null,
+      enableCiFiFallback: config.enableCiFiNames ?? true,
+      enableUnstoppableDomains: config.enableUnstoppableDomains ?? true,
+      enableSpaceId: config.enableSpaceId ?? true,
+      enableSolanaNameService: config.enableSolanaNameService ?? false,
+      enableSuiNameService: config.enableSuiNameService ?? false,
+      cacheMaxSize: config.namesCacheSize ?? 1000,
+      cacheTtl: config.namesCacheTtl ?? const Duration(hours: 1),
     );
 
     // Restore session if enabled

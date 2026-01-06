@@ -57,9 +57,14 @@ class FunctionSelector {
   /// Encode a function call with parameters.
   ///
   /// Returns selector + encoded parameters.
+  ///
+  /// Note: For actual function encoding, use AbiEncoder from lib/src/core/abi_encoder.dart
+  /// This method is a convenience wrapper that will delegate to AbiEncoder when implemented.
   String encodeCall(List<dynamic> parameters) {
-    // TODO: Encode parameters and prepend selector
-    throw UnimplementedError('Function call encoding pending');
+    throw UnimplementedError(
+      'Function call encoding is handled by AbiEncoder. '
+      'Use AbiEncoder.encodeFunctionCall() from lib/src/core/abi_encoder.dart instead.'
+    );
   }
 
   /// Check if data starts with this selector.

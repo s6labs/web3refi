@@ -49,6 +49,31 @@ class Web3RefiConfig extends Equatable {
   /// Enable Mailchain integration.
   final bool enableMailchain;
 
+  // Universal Name Service Configuration
+  /// CiFi API key for CiFi name resolution.
+  final String? cifiApiKey;
+
+  /// Enable CiFi names as fallback (@username, .cifi).
+  final bool? enableCiFiNames;
+
+  /// Enable Unstoppable Domains (.crypto, .nft, etc.).
+  final bool? enableUnstoppableDomains;
+
+  /// Enable Space ID (.bnb, .arb).
+  final bool? enableSpaceId;
+
+  /// Enable Solana Name Service (.sol).
+  final bool? enableSolanaNameService;
+
+  /// Enable Sui Name Service (.sui).
+  final bool? enableSuiNameService;
+
+  /// Name resolution cache size.
+  final int? namesCacheSize;
+
+  /// Name resolution cache TTL.
+  final Duration? namesCacheTtl;
+
   const Web3RefiConfig({
     required this.projectId,
     required this.chains,
@@ -60,6 +85,15 @@ class Web3RefiConfig extends Equatable {
     this.autoRestoreSession = true,
     this.xmtpEnvironment = 'production',
     this.enableMailchain = true,
+    // UNS configuration
+    this.cifiApiKey,
+    this.enableCiFiNames,
+    this.enableUnstoppableDomains,
+    this.enableSpaceId,
+    this.enableSolanaNameService,
+    this.enableSuiNameService,
+    this.namesCacheSize,
+    this.namesCacheTtl,
   })  : defaultChain = defaultChain ?? (chains.isNotEmpty ? chains.first : Chains.ethereum),
         assert(chains.length > 0, 'At least one chain must be provided');
 
@@ -105,6 +139,14 @@ class Web3RefiConfig extends Equatable {
         autoRestoreSession,
         xmtpEnvironment,
         enableMailchain,
+        cifiApiKey,
+        enableCiFiNames,
+        enableUnstoppableDomains,
+        enableSpaceId,
+        enableSolanaNameService,
+        enableSuiNameService,
+        namesCacheSize,
+        namesCacheTtl,
       ];
 
   Web3RefiConfig copyWith({
@@ -118,6 +160,14 @@ class Web3RefiConfig extends Equatable {
     bool? autoRestoreSession,
     String? xmtpEnvironment,
     bool? enableMailchain,
+    String? cifiApiKey,
+    bool? enableCiFiNames,
+    bool? enableUnstoppableDomains,
+    bool? enableSpaceId,
+    bool? enableSolanaNameService,
+    bool? enableSuiNameService,
+    int? namesCacheSize,
+    Duration? namesCacheTtl,
   }) {
     return Web3RefiConfig(
       projectId: projectId ?? this.projectId,
@@ -130,6 +180,14 @@ class Web3RefiConfig extends Equatable {
       autoRestoreSession: autoRestoreSession ?? this.autoRestoreSession,
       xmtpEnvironment: xmtpEnvironment ?? this.xmtpEnvironment,
       enableMailchain: enableMailchain ?? this.enableMailchain,
+      cifiApiKey: cifiApiKey ?? this.cifiApiKey,
+      enableCiFiNames: enableCiFiNames ?? this.enableCiFiNames,
+      enableUnstoppableDomains: enableUnstoppableDomains ?? this.enableUnstoppableDomains,
+      enableSpaceId: enableSpaceId ?? this.enableSpaceId,
+      enableSolanaNameService: enableSolanaNameService ?? this.enableSolanaNameService,
+      enableSuiNameService: enableSuiNameService ?? this.enableSuiNameService,
+      namesCacheSize: namesCacheSize ?? this.namesCacheSize,
+      namesCacheTtl: namesCacheTtl ?? this.namesCacheTtl,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import '../transport/rpc_client.dart';
 import '../wallet/wallet_manager.dart';
+import '../abi/abi_coder.dart';
 
 /// ERC-1155 Multi-Token Standard interface.
 ///
@@ -56,8 +57,18 @@ class ERC1155 {
     required String account,
     required BigInt id,
   }) async {
-    // TODO: Call balanceOf(address,uint256) function
-    throw UnimplementedError('ERC-1155 balanceOf() pending');
+    final data = AbiCoder.encodeFunctionCall(
+      'balanceOf(address,uint256)',
+      [account, id],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['uint256'], result);
+    return decoded[0] as BigInt;
   }
 
   /// Get balances of multiple token types for multiple accounts.
@@ -65,8 +76,22 @@ class ERC1155 {
     required List<String> accounts,
     required List<BigInt> ids,
   }) async {
-    // TODO: Call balanceOfBatch(address[],uint256[]) function
-    throw UnimplementedError('ERC-1155 balanceOfBatch() pending');
+    if (accounts.length != ids.length) {
+      throw ArgumentError('accounts and ids arrays must have same length');
+    }
+
+    final data = AbiCoder.encodeFunctionCall(
+      'balanceOfBatch(address[],uint256[])',
+      [accounts, ids],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['uint256[]'], result);
+    return (decoded[0] as List).cast<BigInt>();
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -78,8 +103,19 @@ class ERC1155 {
     required String operator,
     required bool approved,
   }) async {
-    // TODO: Call setApprovalForAll(address,bool) function
-    throw UnimplementedError('ERC-1155 setApprovalForAll() pending');
+    if (walletManager == null) {
+      throw StateError('WalletManager required for setApprovalForAll()');
+    }
+
+    final data = AbiCoder.encodeFunctionCall(
+      'setApprovalForAll(address,bool)',
+      [operator, approved],
+    );
+
+    return await walletManager!.sendTransaction(
+      to: address,
+      data: data,
+    );
   }
 
   /// Check if operator is approved.
@@ -87,8 +123,18 @@ class ERC1155 {
     required String account,
     required String operator,
   }) async {
-    // TODO: Call isApprovedForAll(address,address) function
-    throw UnimplementedError('ERC-1155 isApprovedForAll() pending');
+    final data = AbiCoder.encodeFunctionCall(
+      'isApprovedForAll(address,address)',
+      [account, operator],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['bool'], result);
+    return decoded[0] as bool;
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -103,8 +149,19 @@ class ERC1155 {
     required BigInt amount,
     Uint8List? data,
   }) async {
-    // TODO: Call safeTransferFrom(address,address,uint256,uint256,bytes) function
-    throw UnimplementedError('ERC-1155 safeTransferFrom() pending');
+    if (walletManager == null) {
+      throw StateError('WalletManager required for safeTransferFrom()');
+    }
+
+    final callData = AbiCoder.encodeFunctionCall(
+      'safeTransferFrom(address,address,uint256,uint256,bytes)',
+      [from, to, id, amount, data ?? Uint8List(0)],
+    );
+
+    return await walletManager!.sendTransaction(
+      to: address,
+      data: callData,
+    );
   }
 
   /// Batch transfer multiple token types.
@@ -115,8 +172,23 @@ class ERC1155 {
     required List<BigInt> amounts,
     Uint8List? data,
   }) async {
-    // TODO: Call safeBatchTransferFrom(address,address,uint256[],uint256[],bytes) function
-    throw UnimplementedError('ERC-1155 safeBatchTransferFrom() pending');
+    if (walletManager == null) {
+      throw StateError('WalletManager required for safeBatchTransferFrom()');
+    }
+
+    if (ids.length != amounts.length) {
+      throw ArgumentError('ids and amounts arrays must have same length');
+    }
+
+    final callData = AbiCoder.encodeFunctionCall(
+      'safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)',
+      [from, to, ids, amounts, data ?? Uint8List(0)],
+    );
+
+    return await walletManager!.sendTransaction(
+      to: address,
+      data: callData,
+    );
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -124,9 +196,22 @@ class ERC1155 {
   // ══════════════════════════════════════════════════════════════════════════
 
   /// Get URI for token metadata.
+  ///
+  /// Returns the metadata URI for a token ID. The URI may contain {id}
+  /// placeholder that clients should replace with the actual token ID.
   Future<String> uri(BigInt id) async {
-    // TODO: Call uri(uint256) function
-    throw UnimplementedError('ERC-1155 uri() pending');
+    final data = AbiCoder.encodeFunctionCall(
+      'uri(uint256)',
+      [id],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: address,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['string'], result);
+    return decoded[0] as String;
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -134,6 +219,9 @@ class ERC1155 {
   // ══════════════════════════════════════════════════════════════════════════
 
   /// Get TransferSingle events.
+  ///
+  /// Query TransferSingle(address operator, address from, address to, uint256 id, uint256 value)
+  /// events with optional filtering.
   Future<List<Map<String, dynamic>>> getTransferSingleEvents({
     String? operator,
     String? from,
@@ -141,11 +229,58 @@ class ERC1155 {
     dynamic fromBlock = 'latest',
     dynamic toBlock = 'latest',
   }) async {
-    // TODO: Query TransferSingle events
-    throw UnimplementedError('ERC-1155 event querying pending');
+    // Event signature: TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)
+    final eventSig = AbiCoder.eventSignature(
+      'TransferSingle(address,address,address,uint256,uint256)',
+    );
+
+    // Build topics (indexed parameters)
+    final topics = <String?>[
+      eventSig,
+      operator != null
+          ? AbiCoder.encodeIndexedParameter(operator, 'address')
+          : null,
+      from != null ? AbiCoder.encodeIndexedParameter(from, 'address') : null,
+      to != null ? AbiCoder.encodeIndexedParameter(to, 'address') : null,
+    ];
+
+    final logs = await rpcClient.getLogs(
+      address: address,
+      topics: topics,
+      fromBlock: fromBlock,
+      toBlock: toBlock,
+    );
+
+    return logs.map((log) {
+      // Indexed parameters are in topics
+      final operatorAddr = log['topics'][1] as String;
+      final fromAddr = log['topics'][2] as String;
+      final toAddr = log['topics'][3] as String;
+
+      // Non-indexed parameters (id, value) are in data
+      final dataHex = log['data'] as String;
+      final decoded = AbiCoder.decodeParameters(
+        ['uint256', 'uint256'],
+        dataHex,
+      );
+
+      return {
+        'operator': AbiCoder.decodeAddress(operatorAddr),
+        'from': AbiCoder.decodeAddress(fromAddr),
+        'to': AbiCoder.decodeAddress(toAddr),
+        'id': decoded[0] as BigInt,
+        'value': decoded[1] as BigInt,
+        'blockNumber': log['blockNumber'],
+        'transactionHash': log['transactionHash'],
+        'logIndex': log['logIndex'],
+      };
+    }).toList();
   }
 
   /// Get TransferBatch events.
+  ///
+  /// Query TransferBatch(address operator, address from, address to, uint256[] ids, uint256[] values)
+  /// events with optional filtering.
   Future<List<Map<String, dynamic>>> getTransferBatchEvents({
     String? operator,
     String? from,
@@ -153,7 +288,51 @@ class ERC1155 {
     dynamic fromBlock = 'latest',
     dynamic toBlock = 'latest',
   }) async {
-    // TODO: Query TransferBatch events
-    throw UnimplementedError('ERC-1155 event querying pending');
+    // Event signature: TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)
+    final eventSig = AbiCoder.eventSignature(
+      'TransferBatch(address,address,address,uint256[],uint256[])',
+    );
+
+    // Build topics (indexed parameters)
+    final topics = <String?>[
+      eventSig,
+      operator != null
+          ? AbiCoder.encodeIndexedParameter(operator, 'address')
+          : null,
+      from != null ? AbiCoder.encodeIndexedParameter(from, 'address') : null,
+      to != null ? AbiCoder.encodeIndexedParameter(to, 'address') : null,
+    ];
+
+    final logs = await rpcClient.getLogs(
+      address: address,
+      topics: topics,
+      fromBlock: fromBlock,
+      toBlock: toBlock,
+    );
+
+    return logs.map((log) {
+      // Indexed parameters are in topics
+      final operatorAddr = log['topics'][1] as String;
+      final fromAddr = log['topics'][2] as String;
+      final toAddr = log['topics'][3] as String;
+
+      // Non-indexed parameters (ids[], values[]) are in data
+      final dataHex = log['data'] as String;
+      final decoded = AbiCoder.decodeParameters(
+        ['uint256[]', 'uint256[]'],
+        dataHex,
+      );
+
+      return {
+        'operator': AbiCoder.decodeAddress(operatorAddr),
+        'from': AbiCoder.decodeAddress(fromAddr),
+        'to': AbiCoder.decodeAddress(toAddr),
+        'ids': (decoded[0] as List).cast<BigInt>(),
+        'values': (decoded[1] as List).cast<BigInt>(),
+        'blockNumber': log['blockNumber'],
+        'transactionHash': log['transactionHash'],
+        'logIndex': log['logIndex'],
+      };
+    }).toList();
   }
 }

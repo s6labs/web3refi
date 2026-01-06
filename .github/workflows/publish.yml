@@ -15,7 +15,7 @@ on:
       dry_run:
         description: 'Dry run (do not actually publish)'
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
 env:
@@ -36,7 +36,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          channel: stable
           cache: true
 
       - name: Install dependencies
@@ -61,7 +61,7 @@ jobs:
     name: Publish Package
     runs-on: ubuntu-latest
     needs: validate
-    if: github.event_name == 'release' || github.event.inputs.dry_run == 'false'
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false')
     
     permissions:
       id-token: write  # Required for pub.dev authentication
@@ -74,17 +74,14 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          channel: stable
           cache: true
-
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@v1
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Publish to pub.dev
-        run: dart pub publish --force
+        run: flutter pub publish --force
 
   # ═══════════════════════════════════════════════════════════════════════════
   # POST-PUBLISH
@@ -148,7 +145,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          channel: stable
           cache: true
 
       - name: Install dependencies

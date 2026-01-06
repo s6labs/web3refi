@@ -52,24 +52,108 @@ class Multicall3 {
   ///
   /// Returns: (blockNumber, returnData[])
   Future<AggregateResult> aggregate(List<Call> calls) async {
-    // TODO: Call aggregate((address,bytes)[]) function
-    throw UnimplementedError('Multicall3 aggregate() pending');
+    // Encode calls as tuple array
+    final callsEncoded = calls.map((call) {
+      return [call.target, call.callData];
+    }).toList();
+
+    final data = AbiCoder.encodeFunctionCall(
+      'aggregate((address,bytes)[])',
+      [callsEncoded],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+    );
+
+    // Decode: (uint256 blockNumber, bytes[] returnData)
+    final decoded = AbiCoder.decodeParameters(
+      ['uint256', 'bytes[]'],
+      result,
+    );
+
+    return AggregateResult(
+      blockNumber: decoded[0] as BigInt,
+      returnData: (decoded[1] as List).cast<Uint8List>(),
+    );
   }
 
   /// Aggregate calls with optional failure handling.
   ///
   /// Each call can succeed or fail independently.
   Future<List<Result>> aggregate3(List<Call3> calls) async {
-    // TODO: Call aggregate3((address,bool,bytes)[]) function
-    throw UnimplementedError('Multicall3 aggregate3() pending');
+    // Encode Call3 structs: (address target, bool allowFailure, bytes callData)
+    final callsEncoded = calls.map((call) {
+      return [call.target, call.allowFailure, call.callData];
+    }).toList();
+
+    final data = AbiCoder.encodeFunctionCall(
+      'aggregate3((address,bool,bytes)[])',
+      [callsEncoded],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+    );
+
+    // Decode: (bool success, bytes returnData)[]
+    final decoded = AbiCoder.decodeParameters(
+      ['(bool,bytes)[]'],
+      result,
+    );
+
+    final resultsRaw = decoded[0] as List;
+    return resultsRaw.map((item) {
+      final tuple = item as List;
+      return Result(
+        success: tuple[0] as bool,
+        returnData: tuple[1] as Uint8List,
+      );
+    }).toList();
   }
 
   /// Aggregate calls with value.
   ///
   /// Supports sending ETH with calls.
   Future<List<Result>> aggregate3Value(List<Call3Value> calls) async {
-    // TODO: Call aggregate3Value((address,bool,uint256,bytes)[]) function
-    throw UnimplementedError('Multicall3 aggregate3Value() pending');
+    // Encode Call3Value structs: (address target, bool allowFailure, uint256 value, bytes callData)
+    final callsEncoded = calls.map((call) {
+      return [call.target, call.allowFailure, call.value, call.callData];
+    }).toList();
+
+    // Calculate total value to send
+    final totalValue = calls.fold<BigInt>(
+      BigInt.zero,
+      (sum, call) => sum + call.value,
+    );
+
+    final data = AbiCoder.encodeFunctionCall(
+      'aggregate3Value((address,bool,uint256,bytes)[])',
+      [callsEncoded],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+      value: totalValue,
+    );
+
+    // Decode: (bool success, bytes returnData)[]
+    final decoded = AbiCoder.decodeParameters(
+      ['(bool,bytes)[]'],
+      result,
+    );
+
+    final resultsRaw = decoded[0] as List;
+    return resultsRaw.map((item) {
+      final tuple = item as List;
+      return Result(
+        success: tuple[0] as bool,
+        returnData: tuple[1] as Uint8List,
+      );
+    }).toList();
   }
 
   /// Try aggregate (deprecated in favor of aggregate3).
@@ -77,8 +161,37 @@ class Multicall3 {
     required bool requireSuccess,
     required List<Call> calls,
   }) async {
-    // TODO: Call tryAggregate(bool,(address,bytes)[]) function
-    throw UnimplementedError('Multicall3 tryAggregate() pending');
+    // Encode calls as tuple array
+    final callsEncoded = calls.map((call) {
+      return [call.target, call.callData];
+    }).toList();
+
+    final data = AbiCoder.encodeFunctionCall(
+      'tryAggregate(bool,(address,bytes)[])',
+      [requireSuccess, callsEncoded],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+    );
+
+    // Decode: (bool success, bytes returnData)[]
+    final decoded = AbiCoder.decodeParameters(
+      ['(bool,bytes)[]'],
+      result,
+    );
+
+    final resultsRaw = decoded[0] as List;
+    final results = resultsRaw.map((item) {
+      final tuple = item as List;
+      return Result(
+        success: tuple[0] as bool,
+        returnData: tuple[1] as Uint8List,
+      );
+    }).toList();
+
+    return TryAggregateResult(results: results);
   }
 
   /// Try block and aggregate.
@@ -86,8 +199,44 @@ class Multicall3 {
     required bool requireSuccess,
     required List<Call> calls,
   }) async {
-    // TODO: Call tryBlockAndAggregate(bool,(address,bytes)[]) function
-    throw UnimplementedError('Multicall3 tryBlockAndAggregate() pending');
+    // Encode calls as tuple array
+    final callsEncoded = calls.map((call) {
+      return [call.target, call.callData];
+    }).toList();
+
+    final data = AbiCoder.encodeFunctionCall(
+      'tryBlockAndAggregate(bool,(address,bytes)[])',
+      [requireSuccess, callsEncoded],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+    );
+
+    // Decode: (uint256 blockNumber, bytes32 blockHash, (bool,bytes)[] returnData)
+    final decoded = AbiCoder.decodeParameters(
+      ['uint256', 'bytes32', '(bool,bytes)[]'],
+      result,
+    );
+
+    final blockNumber = decoded[0] as BigInt;
+    final blockHash = decoded[1] as Uint8List;
+    final resultsRaw = decoded[2] as List;
+
+    final results = resultsRaw.map((item) {
+      final tuple = item as List;
+      return Result(
+        success: tuple[0] as bool,
+        returnData: tuple[1] as Uint8List,
+      );
+    }).toList();
+
+    return TryBlockResult(
+      blockNumber: blockNumber,
+      blockHash: blockHash,
+      results: results,
+    );
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -96,26 +245,65 @@ class Multicall3 {
 
   /// Get current block info.
   Future<BlockInfo> getBlockHash(BigInt blockNumber) async {
-    // TODO: Call getBlockHash(uint256) function
-    throw UnimplementedError('Multicall3 getBlockHash() pending');
+    final data = AbiCoder.encodeFunctionCall(
+      'getBlockHash(uint256)',
+      [blockNumber],
+    );
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['bytes32'], result);
+    final hash = decoded[0] as Uint8List;
+
+    return BlockInfo(
+      number: blockNumber,
+      hash: hash,
+      timestamp: BigInt.zero, // Not provided by this function
+    );
   }
 
   /// Get block number.
   Future<BigInt> getBlockNumber() async {
-    // TODO: Call getBlockNumber() function
-    throw UnimplementedError('Multicall3 getBlockNumber() pending');
+    final data = AbiCoder.encodeFunctionCall('getBlockNumber()', []);
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['uint256'], result);
+    return decoded[0] as BigInt;
   }
 
   /// Get current block timestamp.
   Future<BigInt> getCurrentBlockTimestamp() async {
-    // TODO: Call getCurrentBlockTimestamp() function
-    throw UnimplementedError('Multicall3 getCurrentBlockTimestamp() pending');
+    final data = AbiCoder.encodeFunctionCall('getCurrentBlockTimestamp()', []);
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['uint256'], result);
+    return decoded[0] as BigInt;
   }
 
   /// Get ETH balance of address.
   Future<BigInt> getEthBalance(String address) async {
-    // TODO: Call getEthBalance(address) function
-    throw UnimplementedError('Multicall3 getEthBalance() pending');
+    final data = AbiCoder.encodeFunctionCall('getEthBalance(address)', [
+      address,
+    ]);
+
+    final result = await rpcClient.ethCall(
+      to: contractAddress,
+      data: data,
+    );
+
+    final decoded = AbiCoder.decodeParameters(['uint256'], result);
+    return decoded[0] as BigInt;
   }
 }
 

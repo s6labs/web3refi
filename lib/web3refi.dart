@@ -138,6 +138,39 @@ export 'src/messaging/xmtp/xmtp_client.dart';
 export 'src/messaging/mailchain/mailchain_client.dart';
 
 // ============================================================================
+// CiFi Payment & Identity Platform
+// ============================================================================
+export 'src/cifi/client.dart';
+export 'src/cifi/identity.dart';
+export 'src/cifi/subscription.dart';
+export 'src/cifi/auth.dart';
+export 'src/cifi/webhooks.dart';
+
+// ============================================================================
+// Universal Name Service (UNS)
+// ============================================================================
+export 'src/names/universal_name_service.dart';
+export 'src/names/name_resolver.dart';
+export 'src/names/resolution_result.dart';
+export 'src/names/utils/namehash.dart';
+export 'src/names/resolvers/ens_resolver.dart';
+export 'src/names/resolvers/cifi_resolver.dart';
+export 'src/names/resolvers/unstoppable_resolver.dart';
+export 'src/names/resolvers/spaceid_resolver.dart';
+export 'src/names/resolvers/sns_resolver.dart';
+export 'src/names/resolvers/suins_resolver.dart';
+export 'src/names/registry/registry_factory.dart';
+export 'src/names/registry/registration_controller.dart';
+
+// UNS Advanced Features (Phase 5)
+export 'src/names/cache/name_cache.dart';
+export 'src/names/ccip/ccip_read.dart';
+export 'src/names/batch/batch_resolver.dart';
+export 'src/names/normalization/ens_normalize.dart';
+export 'src/names/expiration/expiration_tracker.dart';
+export 'src/names/analytics/name_analytics.dart';
+
+// ============================================================================
 // Widgets
 // ============================================================================
 export 'src/widgets/wallet_connect_button.dart';
@@ -145,3 +178,22 @@ export 'src/widgets/token_balance.dart';
 export 'src/widgets/chain_selector.dart';
 export 'src/widgets/messaging/chat_screen.dart';
 export 'src/widgets/messaging/inbox_screen.dart';
+export 'src/widgets/cifi_login_button.dart';
+
+// Name Service Widgets
+export 'src/widgets/names/address_input_field.dart';
+export 'src/widgets/names/name_display.dart';
+export 'src/widgets/names/name_registration_flow.dart';
+export 'src/widgets/names/name_management_screen.dart';
+
+// ============================================================================
+// Invoice System - Global Invoice Financing Platform
+// ============================================================================
+// Complete invoice financing system with:
+// - Multi-chain payment processing
+// - XMTP & Mailchain delivery
+// - IPFS & Arweave storage
+// - Recurring subscriptions
+// - Invoice factoring marketplace
+// - Smart contract escrow
+export 'src/invoice/invoice.dart';

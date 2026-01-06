@@ -334,10 +334,15 @@ class PrivateKeySigner implements Signer {
 }
 
 /// Wallet connect signer (delegates to WalletConnect).
+///
+/// Note: This is a placeholder implementation. Actual WalletConnect signing
+/// is handled by the WalletManager class in lib/src/wallet/wallet_manager.dart
+/// which uses the WalletConnect v2 SDK for proper session management and signing.
 class WalletConnectSigner implements Signer {
   final String _address;
 
-  // TODO: Add WalletConnect session reference
+  // WalletConnect session is managed by WalletManager, not directly by Signer
+  // See lib/src/wallet/wallet_manager.dart for actual implementation
 
   WalletConnectSigner(this._address);
 
@@ -351,14 +356,20 @@ class WalletConnectSigner implements Signer {
 
   @override
   Signature sign(Uint8List messageHash) {
-    // TODO: Request signature via WalletConnect
-    throw UnimplementedError('WalletConnect signing pending');
+    // Signing is delegated to WalletManager which handles WalletConnect sessions
+    // See WalletManager.signTransaction() for actual implementation
+    throw UnimplementedError(
+      'WalletConnect signing should be handled via WalletManager, not Signer directly'
+    );
   }
 
   @override
   Signature signWithChainId(Uint8List messageHash, int chainId) {
-    // TODO: Request signature via WalletConnect with chain ID
-    throw UnimplementedError('WalletConnect signing with chain ID pending');
+    // Signing is delegated to WalletManager which handles WalletConnect sessions
+    // See WalletManager.signTransaction() for actual implementation
+    throw UnimplementedError(
+      'WalletConnect signing should be handled via WalletManager, not Signer directly'
+    );
   }
 }
 

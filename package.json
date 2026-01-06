@@ -1,0 +1,17 @@
+{
+  "name": "web3refi-contracts",
+  "version": "2.1.0",
+  "description": "Smart contracts for web3refi invoice system",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:polygon": "hardhat run scripts/deploy_invoice_system.js --network polygon",
+    "deploy:ethereum": "hardhat run scripts/deploy_invoice_system.js --network ethereum",
+    "deploy:local": "hardhat run scripts/deploy_invoice_system.js --network hardhat"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "hardhat": "^2.28.2"
+  }
+}
