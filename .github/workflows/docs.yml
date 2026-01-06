@@ -62,7 +62,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          channel: stable
           cache: true
 
       - name: Install dependencies
@@ -102,26 +102,25 @@ jobs:
         run: |
           # Copy markdown docs to API folder for unified site
           mkdir -p doc/api/guides
-          cp -r doc/*.md doc/api/guides/ 2>/dev/null || true
-          cp README.md doc/api/guides/
-          cp CHANGELOG.md doc/api/guides/
-          
+          cp -r docs/*.md doc/api/guides/ 2>/dev/null || true
+          cp README.md doc/api/guides/ 2>/dev/null || true
+          cp CHANGELOG.md doc/api/guides/ 2>/dev/null || true
+          cp WHITEPAPER.md doc/api/guides/ 2>/dev/null || true
+
           # Create a simple navigation
           cat > doc/api/guides/index.md << 'EOF'
           # web3refi Documentation
-          
+
           ## Guides
-          - [Getting Started](getting-started.md)
-          - [Wallet Connection](wallet-connection.md)
-          - [Token Operations](token-operations.md)
-          - [Multi-Chain Support](multi-chain.md)
-          - [Error Handling](error-handling.md)
-          - [Migration from web3dart](migration-from-web3dart.md)
-          
+          - [API Reference](../API.md)
+          - [Architecture](../ARCHITECTURE.md)
+          - [README](../README.md)
+          - [Whitepaper](../WHITEPAPER.md)
+
           ## Resources
           - [API Reference](../index.html)
-          - [Changelog](CHANGELOG.md)
-          - [GitHub Repository](https://github.com/web3refi/web3refi)
+          - [GitHub Repository](https://github.com/s6labs/web3refi)
+          - [pub.dev](https://pub.dev/packages/web3refi)
           EOF
 
       - name: Setup Pages
