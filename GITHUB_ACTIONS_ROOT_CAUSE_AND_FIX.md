@@ -36,15 +36,18 @@ Error: Process completed with exit code 1.
 5. Workflow interprets this as a failure
 6. ALL jobs fail, even though the code is fine
 
-### Secondary Issue:
+### Secondary Issue - Example App Android Embedding:
 
-The example app also showed a warning:
+The example app has an incomplete Android project structure, causing:
 ```
 This app is using a deprecated version of the Android embedding.
 The plugin `flutter_secure_storage` requires your app to be migrated to the Android embedding v2.
+Error: Process completed with exit code 1.
 ```
 
-This **warning** (not error) was being displayed during `flutter pub get`, but the analytics exit code was the actual failure.
+**Root Cause**: The example directory lacks proper Android project files (only has placeholder files), so `flutter pub get` in the example directory fails when trying to validate flutter_secure_storage compatibility.
+
+**Fix**: Added `--no-example` flag to skip example directory during dependency installation.
 
 ---
 
@@ -61,11 +64,23 @@ Added this step to ALL workflows **before** `flutter pub get`:
 
 This prevents the first-run prompt and the exit code 1.
 
+### Solution 2: Skip Example App (APPLIED)
+
+Changed all `flutter pub get` commands to skip the incomplete example app:
+
+```yaml
+- name: Install dependencies
+  run: flutter pub get --no-example
+```
+
+This prevents the Android embedding v2 migration error from the example app.
+
 ### Files Modified:
 
-1. ✅ `.github/workflows/ci.yml` - Added to analyze job
-2. ✅ `.github/workflows/security.yml` - Added to all 4 jobs
-3. 🔄 `.github/workflows/docs.yml` - Will add if needed
+1. ✅ `.github/workflows/ci.yml` - Added analytics disable + --no-example flag
+2. ✅ `.github/workflows/security.yml` - Added analytics disable + --no-example flag
+3. ✅ `.github/workflows/docs.yml` - Added analytics disable + --no-example flag
+4. ✅ `.github/workflows/publish.yml` - Added --no-example flag
 
 ---
 
@@ -102,6 +117,12 @@ After these fixes (commits `8417b3b` and `13c9624`), the workflows should:
 **Add Flutter analytics disable to security workflow**
 - Added analytics disable to all Security workflow jobs
 - Ensures consistent behavior across all workflows
+
+### Commit 3: `0b25e22`
+**Fix: Skip example app dependencies to avoid Android embedding v2 error**
+- Added `--no-example` flag to all `flutter pub get` commands
+- Skips incomplete example app that was causing exit code 1
+- Applied to all workflows: ci.yml, security.yml, docs.yml, publish.yml
 
 ---
 
