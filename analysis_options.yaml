@@ -1,0 +1,99 @@
+# Analysis options for web3refi
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/generated/**"
+    - "build/**"
+    - "node_modules/**"
+    - "artifacts/**"
+    - "cache/**"
+    - "example/build/**"
+
+  errors:
+    # Treat missing required parameters as errors
+    missing_required_param: error
+
+    # Treat missing returns as errors
+    missing_return: error
+
+    # Allow unused imports for now (will clean up later)
+    unused_import: warning
+
+    # Allow unused local variables (common in development)
+    unused_local_variable: ignore
+
+    # Allow unused elements (work in progress)
+    unused_element: warning
+
+    # Allow deprecated members (for backward compatibility)
+    deprecated_member_use: warning
+    deprecated_member_use_from_same_package: ignore
+
+    # Allow TODO comments (tracked separately)
+    todo: ignore
+
+    # Disable implicit-casts (Dart 3 feature)
+    implicit_casts: ignore
+
+    # Disable implicit-dynamic (Dart 3 feature)
+    implicit_dynamic: ignore
+
+linter:
+  rules:
+    # Enabled rules
+    - always_declare_return_types
+    - always_put_required_named_parameters_first
+    - always_use_package_imports
+    - avoid_empty_else
+    - avoid_print
+    - avoid_relative_lib_imports
+    - avoid_returning_null_for_future
+    - avoid_slow_async_io
+    - avoid_types_as_parameter_names
+    - avoid_web_libraries_in_flutter
+    - camel_case_extensions
+    - camel_case_types
+    - cancel_subscriptions
+    - close_sinks
+    - constant_identifier_names
+    - control_flow_in_finally
+    - empty_statements
+    - hash_and_equals
+    - implementation_imports
+    - no_duplicate_case_values
+    - non_constant_identifier_names
+    - package_api_docs
+    - package_names
+    - package_prefixed_library_names
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - prefer_final_fields
+    - prefer_final_locals
+    - prefer_is_empty
+    - prefer_is_not_empty
+    - prefer_single_quotes
+    - sort_child_properties_last
+    - test_types_in_equals
+    - throw_in_finally
+    - unnecessary_brace_in_string_interps
+    - unnecessary_getters_setters
+    - unnecessary_new
+    - unnecessary_null_aware_assignments
+    - unnecessary_null_in_if_null_operators
+    - unnecessary_overrides
+    - unnecessary_statements
+    - unnecessary_this
+    - unrelated_type_equality_checks
+    - use_full_hex_values_for_flutter_colors
+    - use_function_type_syntax_for_parameters
+    - use_rethrow_when_possible
+    - valid_regexps
+
+    # Disabled for now (can enable later)
+    # - public_member_api_docs
+    # - lines_longer_than_80_chars
+    # - prefer_relative_imports
