@@ -40,7 +40,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --no-example
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
@@ -78,7 +78,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --no-example
 
       - name: Publish to pub.dev
         run: flutter pub publish --force
@@ -149,7 +149,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --no-example
 
       - name: Dry run publish
         run: |

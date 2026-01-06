@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Installing dependencies..."
-          flutter pub get || { echo "❌ flutter pub get failed"; exit 1; }
+          flutter pub get --no-example || { echo "❌ flutter pub get failed"; exit 1; }
           echo "✓ Dependencies installed successfully"
 
       - name: Verify formatting
@@ -81,10 +81,13 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
+
       - name: Install dependencies
         run: |
           echo "Installing dependencies..."
-          flutter pub get || { echo "❌ flutter pub get failed"; exit 1; }
+          flutter pub get --no-example || { echo "❌ flutter pub get failed"; exit 1; }
           echo "✓ Dependencies installed"
 
       - name: Run tests with coverage
