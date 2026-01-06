@@ -253,7 +253,7 @@ jobs:
         run: flutter pub get --no-example
 
       - name: Check for outdated dependencies
-        run: flutter pub outdated
+        run: flutter pub outdated --no-example
 
       - name: Audit dependencies
         run: |

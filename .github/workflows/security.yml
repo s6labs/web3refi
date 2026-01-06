@@ -56,7 +56,7 @@ jobs:
           echo "═══════════════════════════════════════════════════════════════"
           echo "Checking for outdated dependencies..."
           echo "═══════════════════════════════════════════════════════════════"
-          flutter pub outdated
+          flutter pub outdated --no-example
           
       - name: Check dependency tree
         run: |
